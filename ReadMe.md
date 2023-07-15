@@ -73,6 +73,10 @@
 ```sh
 source <Ruta_del_archivo>\Creates consolidado.sql
 ```
+Nota: En la última versión de MySQL el comando source se escribe: (\.). Al realizar la ejecución del comando, es posible recibir un error como este: ERROR 1366 (HY000): Incorrect string value: '\xF1a' for column 'asunto' at row 1
+mysql> \. <Ruta_del_archivo>\Creates consolidado.sql
+Query OK, 9 rows affected (0.12 sec)
+Verificar que comando es necesario para la versión del momento.
 
 ![mysql modelo3](/Jorge-Diego-Manrique/crear_modelo/3.png "modelo3")\
 4.  Cerrar la ventana cuando termine de ejecutarse el script.
