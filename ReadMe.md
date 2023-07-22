@@ -93,5 +93,3 @@ Nota: Si se desea editar o utilizar la app para realizar modificaciónes o prueb
 ![mysql toolbox3](/Jorge-Diego-Manrique/install_toolbox/3.png "toolbox3")
 3. Cuando finalice la instalación cerrar la ventana e iniciar la applicación.\
 ![mysql toolbox7](/Jorge-Diego-Manrique/install_toolbox/7.png "toolbox7")
-
-
