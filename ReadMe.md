@@ -1,23 +1,25 @@
 ![UVG logo](https://res.cloudinary.com/webuvg/image/upload/f_auto,q_auto,fl_lossy,w_200/v1561048457/WEB/institucional/Logo_Cuadro_Verde3x.jpg "UVG logo")
+
 # Herramienta de Software con una Base de Datos Integrada para el Estudio de la Epilepsia - Fase II
+
 ## Manual de instalación
 
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
 ## Descarga de  MySQL
 
-1.  Ingresar a https://www.mysql.com/
-2.  Ingresar a Downloads\
+1. Ingresar a <https://www.mysql.com/>
+2. Ingresar a Downloads\
 ![mysql downloads](/Jorge-Diego-Manrique/descarga_mysql/ingresardownloads.png "Downloads")
-3.  Ingresar a "MySQL Community (GPL) Downloads"\
+3. Ingresar a "MySQL Community (GPL) Downloads"\
 ![mysql community downloads](/Jorge-Diego-Manrique/descarga_mysql/downloads2.png "Community Downloads")
-4.  Ingresar a "MySQL Installer for Windows"\
+4. Ingresar a "MySQL Installer for Windows"\
 ![mysql Installer](/Jorge-Diego-Manrique/descarga_mysql/downloads3.png "Installers")
-5.  Descargar la opción A si la maquina donde se instalará tiene acceso a internet y B si no tiene acceso a internet.\
+5. Descargar la opción A si la maquina donde se instalará tiene acceso a internet y B si no tiene acceso a internet.\
 ![mysql A y B downloads](/Jorge-Diego-Manrique/descarga_mysql/downloads4.png "A y B Downloads")
-6.  Si no se cuenta con cuenta de oracle es necesario crear una, de lo contrario simplemente iniciar sesión.\
+6. Si no se cuenta con cuenta de oracle es necesario crear una, de lo contrario simplemente iniciar sesión.\
 ![mysql account downloads](/Jorge-Diego-Manrique/descarga_mysql/downloads5.png "account Downloads")
-7.  Descargar el instalador.\
+7. Descargar el instalador.\
 ![mysql final downloads](/Jorge-Diego-Manrique/descarga_mysql/downloads6.png "final Downloads")
 
 ## Instalación de MySQL
@@ -40,7 +42,9 @@
 ![mysql install10](/Jorge-Diego-Manrique/install_mysql/10.png "install10")
 
 ## Configuración adicional requerida de MySQL
+
 ### Modificar el parametro max_allowed_packet
+
 1. Abrir notepad con permisos de administrador.
 2. Abrir archivo "C:\ProgramData\MySQL\MySQL Server 8.0\my.ini"\
 ![mysql conf1](/Jorge-Diego-Manrique/conf_mysql/1.png "conf1")
@@ -54,6 +58,7 @@
 7. Cerrar programa.
 
 ### Configurar conexión ODBC a MySQL en Windows
+
 1. Buscar en programas de Windows "ODBC" y abrir el programa "Origenes de datos ODBC...".\
 ![mysql conf5](/Jorge-Diego-Manrique/conf_mysql/5.png "conf5")
 2. Ingresar en "Agregar".\
@@ -65,14 +70,17 @@
 5. Cerrar.
 
 # Crear modelo relacional en MySQL
-1.  Buscar en programas de Windows "MySQL 8.0 Command Line Client" Y abrir el programa.\
+
+1. Buscar en programas de Windows "MySQL 8.0 Command Line Client" Y abrir el programa.\
 ![mysql modelo1](/Jorge-Diego-Manrique/crear_modelo/1.png "modelo1")
-2.  Ingresar la contraseña del usuario root (La definida en la instalación de MySQL):\
+2. Ingresar la contraseña del usuario root (La definida en la instalación de MySQL):\
 ![mysql modelo2](/Jorge-Diego-Manrique/crear_modelo/2.1.png "modelo2")
-3.  Ingresar lo siguiente para ejecutar el archivo "Creates consolidado.sql"
+3. Ingresar lo siguiente para ejecutar el archivo "Creates consolidado.sql"
+
 ```sh
 source <Ruta_del_archivo>\Creates consolidado.sql
 ```
+
 Nota: En la última versión de MySQL el comando source se escribe: (\.). Al realizar la ejecución del comando, es posible recibir un error como este: ERROR 1366 (HY000): Incorrect string value: '\xF1a' for column 'asunto' at row 1
 mysql> \. <Ruta_del_archivo>\Creates consolidado.sql
 Query OK, 9 rows affected (0.12 sec)
@@ -81,9 +89,9 @@ Verificar que comando es necesario para la versión del momento.
 ![mysql modelo3](/Jorge-Diego-Manrique/crear_modelo/3.png "modelo3")\
 4.  Cerrar la ventana cuando termine de ejecutarse el script.
 
-# Instalación del Toolbox.
+# Instalación del Toolbox
 
-En la carpeta "\GitHub\Datos-Epilepsia-2021\Jorge-Diego-Manrique\App Designer\EpilepticEEGAnalysisToolbox\for_redistribution" del repositorio de Github se encuentran los executables para Windows del toolbox. 
+En la carpeta "\GitHub\Datos-Epilepsia-2021\Jorge-Diego-Manrique\App Designer\EpilepticEEGAnalysisToolbox\for_redistribution" del repositorio de Github se encuentran los executables para Windows del toolbox.
 
 Nota: Si se desea editar o utilizar la app para realizar modificaciónes o pruebas no es necesario seguir estos pasos. Basta con abrir el archivo principal.mlapp ubicado en "\GitHub\Datos-Epilepsia-2021\Jorge-Diego-Manrique\App Designer".
 
