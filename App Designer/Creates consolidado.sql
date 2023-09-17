@@ -33,7 +33,7 @@ constraint fk_pruebas foreign key (id_paciente) references pacientes(id_paciente
 
 set global sql_generate_invisible_primary_key=1;
 
-create table if not exists pruebas_datos(id bigint unsigned NOT NULL AUTO_INCREMENT /*!80023 INVISIBLE */,
+create table if not exists pruebas_datos(
 id_prueba int not null,
 canal_1 float not null,
 canal_2 float not null,
@@ -70,9 +70,10 @@ canal_32 float,
 canal_33 float,
 canal_34 float,
 canal_35 float,
-primary key (id),
 constraint fk_pdatos foreign key (id_prueba) references pruebas(id_prueba)
 ) ENGINE=InnoDB;
+ALTER TABLE pruebas_datos ALTER COLUMN my_row_id SET VISIBLE;
+ALTER TABLE pruebas_datos RENAME COLUMN my_row_id to id;
 ALTER TABLE pruebas_datos ALTER COLUMN id SET INVISIBLE;
 set global sql_generate_invisible_primary_key=0;
 
@@ -102,7 +103,7 @@ realizado_por varchar(50) not null,
 notas varchar(50),
 id_prueba int not null,
 id_paciente varchar(20) not null,
-canales_utilizados varchar(50) not null, #revisar tipo de dato
+canales_utilizados varchar(50) not null, 
 primary key (id_analisis),
 constraint fk_prueba_a foreign key (id_prueba) references pruebas(id_prueba),
 constraint fk_paciente_a foreign key (id_paciente) references pruebas(id_paciente)
@@ -138,7 +139,7 @@ mav float,
 zc int,
 type1_error int,
 type2_error int,
-Specificity float, #true negatives rate
+Specificity float, 
 AUC float,
 AUC_Class varchar(10),
 MSE float,
@@ -158,17 +159,16 @@ mensaje_2 varchar(500) not null,
 server varchar(500) not null
 );
 
-#IMPORTANTE: ESTA TABLA SOLO DEBE TENER UN REGISTRO.;
+
 insert into humana.config values('eeganalysistoolbox@gmail.com','uvg@2022','EEG Analysis Toolbox - Recuperar contraseña','->','Puedes cambiarla en cualquier momento en la pantalla de configuraci�n despu�s de iniciar sesi�n.','smtp.gmail.com');
 
-#Crear usuario encargado de la consulta de los correos en recuperar contrasena;
 create user if not exists resetpass;
 alter user resetpass identified by '2023';
 grant select on humana.config to resetpass;
 grant select on humana.usuarios to resetpass;
 grant create user on *.* to resetpass;
 
-#Crear usuario con permisos de administrador capaz de crear usuarios y asignar permiso;
+
 create user if not exists admin;
 alter user admin identified by '1234';
 GRANT ALL PRIVILEGES ON humana.* TO admin WITH GRANT OPTION;
@@ -176,11 +176,5 @@ GRANT SELECT ON mysql.user TO admin WITH GRANT option;
 GRANT CREATE USER ON *.* TO admin WITH GRANT option;
 insert into humana.usuarios values ('admin','men19673@uvg.edu.gt' ,'Super User', true, true, true, true, true, true, true, true, false, true);
 
-
-# GMail;
-# eeganalysistoolbox@gmail.com;
-# uvg@2022;
-
-#Permitimos que se puedan obtener datos de .txt en folder C:/ProgramData/MySQL 8.0/;
 SET GLOBAL local_infile=1; 
 RESTART;
