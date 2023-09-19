@@ -171,10 +171,13 @@ grant create user on *.* to resetpass;
 
 create user if not exists admin;
 alter user admin identified by '1234';
+
 GRANT ALL PRIVILEGES ON humana.* TO admin WITH GRANT OPTION;
 GRANT SELECT ON mysql.user TO admin WITH GRANT option;
 GRANT CREATE USER ON *.* TO admin WITH GRANT option;
 insert into humana.usuarios values ('admin','men19673@uvg.edu.gt' ,'Super User', true, true, true, true, true, true, true, true, false, true);
+
+GRANT FILE ON *.* TO admin@localhost;
 
 SET GLOBAL local_infile=1; 
 RESTART;
