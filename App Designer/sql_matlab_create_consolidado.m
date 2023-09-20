@@ -1,8 +1,8 @@
 %% Código de creación de la base de datos, se debe obligatoriamente usar los datos ingresados en la creación de la base.
-
+function sql_matlab_create_consolidado(password)
 datasource = "toolbox";  %Conector OBDC instalado
 username = "root";       %Usuario root de la base de datos, tiene todos los permisos
-password = "2023";       %Contraseña asignada a la base de datos en su creación
+%%password = "2023";       %Contraseña asignada a la base de datos en su creación
 conn = database(datasource,username,password);
 
 % Createsconsolidado_strings = importdata('Creates_consolidado.sql', ';')
@@ -265,4 +265,5 @@ queryact{2} = 'RESTART;';
 
 for i = 1:length(queryact)
     execute(conn, queryact{i});
+end
 end
