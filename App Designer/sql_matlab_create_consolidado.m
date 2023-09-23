@@ -268,8 +268,8 @@ end
 
 %% ACTIVAR LA FUNCION DE IMPORTAR DATOS CON BULK INSER Y REINICAR BASE DE DATOS
 queryact{1} = 'SET GLOBAL local_infile=1;';
-queryact{3} = 'SET GLOBAL max_allowed_packet=1000000000; ' %Cambiamos el paquete máximo a 1GB
-queryact{2} = 'RESTART;';
+queryact{2} = 'SET GLOBAL max_allowed_packet=1000000000; ' %Cambiamos el paquete máximo a 1GB
+queryact{3} = 'RESTART;';
 
 for i = 1:length(queryact)
     execute(conn, queryact{i});
