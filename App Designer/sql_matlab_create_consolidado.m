@@ -5,15 +5,6 @@ username = "root";       %Usuario root de la base de datos, tiene todos los perm
 %password = "2023";       %Contraseña asignada a la base de datos en su creación
 conn = database(datasource,username,password);
 
-% Createsconsolidado_strings = importdata('Creates_consolidado.sql', ';')
-% query = strjoin(Createsconsolidado_strings);
-% query= strsplit(query, ';')
-% % load('Createsconsolidado_string.mat');
-% for i  = 1:length(query)-1 %ECl split crea una celda extra
-%     queryexe= strcat(query{i},';')
-%     execute(conn,queryexe);    
-% end
-
 %% DROP Elimina lo existente con anterioridad corrase en caso se desee reiniciar la base de datos
 querydrop{1} = 'DROP DATABASE IF EXISTS humana';                               %Eliminar base de datos si ya existe
 querydrop{2} = 'DROP USER IF EXISTS resetpass';                                %Eliminar usuario resetpass si ya existe
@@ -57,7 +48,7 @@ querypruebas = ['CREATE TABLE IF NOT EXISTS pruebas('...
 execute(conn,querypruebas);
 %% CREATE Table pruebas_datos (Esta tabla contiene una llave invisble)
 querypruebas_datos{1} = 'set global sql_generate_invisible_primary_key=1';      %Activa la generacion de la llave invisble
-querypruebas_datos{2} =['create table if not exists pruebas_datos('...
+querypruebas_datos{2} =['CREATE TABLE IF NOT EXISTS pruebas_datos('...
                         'id_prueba int NOT NULL,'...
                         'canal_1 float NOT NULL,'...'...
                         'canal_2 float NOT NULL,'...
@@ -268,10 +259,10 @@ end
 
 %% ACTIVAR LA FUNCION DE IMPORTAR DATOS CON BULK INSER Y REINICAR BASE DE DATOS
 queryact{1} = 'SET GLOBAL local_infile=1;';
-queryact{2} = 'SET GLOBAL max_allowed_packet=1000000000; ' %Cambiamos el paquete máximo a 1GB
+queryact{2} = 'SET GLOBAL max_allowed_packet=1000000000; ';%Cambiamos el paquete máximo a 1GB
 queryact{3} = 'RESTART;';
 
 for i = 1:length(queryact)
     execute(conn, queryact{i});
 end
-end
+end %End de la funcion
