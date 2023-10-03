@@ -1,18 +1,9 @@
 %% Código de creación de la base de datos, se debe obligatoriamente usar los datos ingresados en la creación de la base.
-
+function sql_matlab_create_consolidado(password)
 datasource = "toolbox";  %Conector OBDC instalado
 username = "root";       %Usuario root de la base de datos, tiene todos los permisos
-password = "2023";       %Contraseña asignada a la base de datos en su creación
+%password = "2023";       %Contraseña asignada a la base de datos en su creación
 conn = database(datasource,username,password);
-
-% Createsconsolidado_strings = importdata('Creates_consolidado.sql', ';')
-% query = strjoin(Createsconsolidado_strings);
-% query= strsplit(query, ';')
-% % load('Createsconsolidado_string.mat');
-% for i  = 1:length(query)-1 %ECl split crea una celda extra
-%     queryexe= strcat(query{i},';')
-%     execute(conn,queryexe);    
-% end
 
 %% DROP Elimina lo existente con anterioridad corrase en caso se desee reiniciar la base de datos
 querydrop{1} = 'DROP DATABASE IF EXISTS humana';                               %Eliminar base de datos si ya existe
@@ -57,7 +48,7 @@ querypruebas = ['CREATE TABLE IF NOT EXISTS pruebas('...
 execute(conn,querypruebas);
 %% CREATE Table pruebas_datos (Esta tabla contiene una llave invisble)
 querypruebas_datos{1} = 'set global sql_generate_invisible_primary_key=1';      %Activa la generacion de la llave invisble
-querypruebas_datos{2} =['create table if not exists pruebas_datos('...
+querypruebas_datos{2} =['CREATE TABLE IF NOT EXISTS pruebas_datos('...
                         'id_prueba int NOT NULL,'...
                         'canal_1 float NOT NULL,'...'...
                         'canal_2 float NOT NULL,'...
@@ -166,6 +157,7 @@ queryusuarios{8} = 'GRANT SELECT ON mysql.user TO admin WITH GRANT OPTION;';
 queryusuarios{9} = 'GRANT CREATE USER ON *.* TO admin WITH GRANT OPTION;';
 queryusuarios{10}= 'GRANT FILE ON *.* TO admin;';
 
+
 for i = 1:length(queryusuarios)
     execute(conn, queryusuarios{i});
 end
@@ -244,16 +236,22 @@ queryconfig{1} = ['CREATE TABLE IF NOT EXISTS config('...
                    'mensaje_1 varchar(500) NOT NULL,'...
                    'mensaje_2 varchar(500) NOT NULL,'...
                    'server varchar(500) NOT NULL);'];
-
+% Unico registro que debe de existir en la tabla humana.config 
 queryconfig{2} = ['INSERT INTO humana.config VALUES(' ...
                   ' ''eeganalysistoolbox@gmail.com'','...
-                  ' ''uvg@2022'','...
+                  ' ''cgsw pylb ptlf wvng'','... % Contrasena de aplicacion generadada en google
                   ' ''EEG Analysis Toolbox - Recuperar contraseña'','...
                   ' ''->'','...
                   ' ''Puedes cambiarla en cualquier momento ' ...
                   'en la pantalla de configuracion despues ' ...
                   'de iniciar sesion.'','...
                   ' ''smtp.gmail.com'');'];
+% Este usuario se encarga de enviar las contraseñas reestablecidas
+queryconfig{3} = 'CREATE USER IF NOT EXISTS resetpass;';
+queryconfig{4} = 'ALTER USER resetpass IDENTIFIED BY ''2023'';';
+queryconfig{5} = 'GRANT SELECT ON humana.config TO resetpass;';
+queryconfig{6} = 'GRANT SELECT ON humana.usuarios TO resetpass;';
+queryconfig{7} = 'GRANT CREATE USER ON *.* TO resetpass;';
 
 for i = 1:length(queryconfig)
     execute(conn, queryconfig{i});
@@ -261,8 +259,10 @@ end
 
 %% ACTIVAR LA FUNCION DE IMPORTAR DATOS CON BULK INSER Y REINICAR BASE DE DATOS
 queryact{1} = 'SET GLOBAL local_infile=1;';
-queryact{2} = 'RESTART;';
+queryact{2} = 'SET GLOBAL max_allowed_packet=1000000000; ';%Cambiamos el paquete máximo a 1GB
+queryact{3} = 'RESTART;';
 
 for i = 1:length(queryact)
     execute(conn, queryact{i});
 end
+end %End de la funcion

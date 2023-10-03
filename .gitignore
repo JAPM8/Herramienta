@@ -3,3 +3,15 @@ App Designer/archivo.bin
 *.bin
 AL.edf
 CLEA.edf
+Documentos/Instalación y configuración.docx
+App Designer/for_redistribution/EpilepticEEGAnalysisToolbox-Installer.exe
+App Designer/for_redistribution_files_only/EpilepticEEGAnalysisToolbox.exe
+App Designer/for_redistribution_files_only/readme.txt
+App Designer/for_redistribution_files_only/splash.png
+App Designer/for_testing/EpilepticEEGAnalysisToolbox.exe
+App Designer/for_testing/includedSupportPackages.txt
+App Designer/for_testing/mccExcludedFiles.log
+App Designer/for_testing/readme.txt
+App Designer/for_testing/requiredMCRProducts.txt
+App Designer/for_testing/splash.png
+App Designer/for_testing/unresolvedSymbols.txt
