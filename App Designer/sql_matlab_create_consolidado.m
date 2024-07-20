@@ -46,7 +46,7 @@ querypruebas = ['CREATE TABLE IF NOT EXISTS pruebas('...
                 'constraint fk_pruebas foreign key (id_paciente) ' ...
                 'references pacientes(id_paciente))'];
 execute(conn,querypruebas);
-%% CREATE Table pruebas_datos (Esta tabla contiene una llave invisble)
+%% CREATE Table pruebas_datos (Esta tabla contiene una llave invisible)
 querypruebas_datos{1} = 'set global sql_generate_invisible_primary_key=1';      %Activa la generacion de la llave invisble
 querypruebas_datos{2} =['CREATE TABLE IF NOT EXISTS pruebas_datos('...
                         'id_prueba int NOT NULL,'...
@@ -257,7 +257,7 @@ for i = 1:length(queryconfig)
     execute(conn, queryconfig{i});
 end
 
-%% ACTIVAR LA FUNCION DE IMPORTAR DATOS CON BULK INSER Y REINICAR BASE DE DATOS
+%% ACTIVAR LA FUNCION DE IMPORTAR DATOS CON BULK INSERT Y REINICAR BASE DE DATOS
 queryact{1} = 'SET GLOBAL local_infile=1;';
 queryact{2} = 'SET GLOBAL max_allowed_packet=1000000000; ';%Cambiamos el paquete máximo a 1GB
 queryact{3} = 'RESTART;';

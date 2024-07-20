@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.apptool" plugin-version="1.0">
-  <configuration build-checksum="2893830483" file="C:\Users\diego\OneDrive - Universidad del Valle de Guatemala\University\Tesis\Herramienta\App Designer\Epileptic EEG Analysis Toolbox.prj" location="C:\Users\diego\OneDrive - Universidad del Valle de Guatemala\University\Tesis\Herramienta\App Designer" name="Epileptic EEG Analysis Toolbox" target="target.mlapps" target-name="Package App">
+  <configuration build-checksum="2893830483" file="C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway\Tesis\Herramienta\Herramienta\App Designer\Epileptic EEG Analysis Toolbox.prj" location="C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway\Tesis\Herramienta\Herramienta\App Designer" name="Epileptic EEG Analysis Toolbox" target="target.mlapps" target-name="Package App">
     <param.appname>Epileptic EEG Analysis Toolbox</param.appname>
     <param.authnamewatermark>Méndez, D.A. et al.</param.authnamewatermark>
     <param.email>men19673@uvg.edu.gt</param.email>
@@ -8,7 +8,7 @@
     <param.icons />
     <param.summary>Herramienta de para el análisis de herramientas EEG.</param.summary>
     <param.description>Herramienta desarrollada en colaboración entre estudiantes de la UVG con la organización HUMANA.</param.description>
-    <param.screenshot>C:\Users\diego\AppData\Local\Temp\tpfecd0961_b2ca_4116_bff5_842650bf42aa.png</param.screenshot>
+    <param.screenshot />
     <param.version>2.0</param.version>
     <param.products.name>
       <item>MATLAB</item>
@@ -23,23 +23,25 @@
       <item>8</item>
     </param.products.id>
     <param.products.version>
-      <item>9.14</item>
-      <item>11.0</item>
+      <item>24.1</item>
+      <item>24.1</item>
       <item>5.6</item>
-      <item>9.2</item>
+      <item>24.1</item>
     </param.products.version>
     <param.platforms />
-    <param.output>C:\Users\diego\OneDrive - Universidad del Valle de Guatemala\University\Tesis\Prueba2</param.output>
+    <param.output>C:\Users</param.output>
     <param.guid>340ce276-3fe4-4caa-af30-3ab64f21864c</param.guid>
     <unset>
       <param.icon />
       <param.icons />
+      <param.screenshot />
       <param.platforms />
     </unset>
     <fileset.main>
       <file>${PROJECT_ROOT}\principal.mlapp</file>
     </fileset.main>
     <fileset.depfun>
+      <file>C:\Users\diego\OneDrive - Universidad del Valle de Guatemala\University\Tesis\Herramienta\archivo.bin</file>
       <file>${PROJECT_ROOT}\admin.mlapp</file>
       <file>${PROJECT_ROOT}\agregarpac.mlapp</file>
       <file>${PROJECT_ROOT}\anotacionesautomaticas.mlapp</file>
@@ -75,25 +77,18 @@
       <file>${PROJECT_ROOT}\selectprueba.mlapp</file>
       <file>${PROJECT_ROOT}\serialize.m</file>
       <file>${PROJECT_ROOT}\ZC.m</file>
-      <file>C:\Users\diego\OneDrive - Universidad del Valle de Guatemala\University\Tesis\Herramienta\archivo.bin</file>
     </fileset.depfun>
     <fileset.resources />
     <fileset.package />
     <build-deliverables>
-      <file location="C:\Users\diego\OneDrive - Universidad del Valle de Guatemala\University\Tesis" name="Prueba2" optional="false">C:\Users\diego\OneDrive - Universidad del Valle de Guatemala\University\Tesis\Prueba2</file>
+      <file location="C:\" name="Users" optional="false">C:\Users</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>C:\Program Files\MATLAB\R2023a</root>
+      <root>C:\Program Files\MATLAB\R2024a</root>
       <toolboxes>
-        <toolbox name="matlabcoder" />
         <toolbox name="neuralnetwork" />
       </toolboxes>
-      <toolbox>
-        <matlabcoder>
-          <enabled>true</enabled>
-        </matlabcoder>
-      </toolbox>
       <toolbox>
         <neuralnetwork>
           <enabled>true</enabled>
