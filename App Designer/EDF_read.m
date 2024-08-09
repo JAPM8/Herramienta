@@ -1,4 +1,4 @@
-function [hdr, record] = edfread(fname, varargin)
+function [hdr, record] = EDF_read(fname, varargin)
 % Read European Data Format file into MATLAB
 %
 % [hdr, record] = edfread(fname)
