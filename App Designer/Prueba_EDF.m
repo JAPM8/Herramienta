@@ -1,8 +1,8 @@
 % Código para reemplazar función edfread con la que proporciona Matlab
 clear; clc;
-
-path = "C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway\Tesis\Data" + ...
-       "\Datos_TUH\v2.0.3\edf\train\aaaaaljo\s001_2011\01_tcp_ar\aaaaaljo_s001_t000.edf";
+path = "C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway\Tesis" + ...
+       "\Data\Datos_TUH\v2.0.3\edf\train\aaaaaljo\s001_2011\01_tcp_ar\aaaaaljo_s001_t000.edf";
+% path = "C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway\Tesis\Data\Datos_HUMANA\GIKA.edf";
 
 tic
 
@@ -21,3 +21,11 @@ tic
 toc
 
 % lectura = data.("EEGFP1_REF"){1};
+
+%% Prueba serialize
+
+tic
+
+prueba1 = serialize(data2);
+
+toc

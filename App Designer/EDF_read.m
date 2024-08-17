@@ -152,8 +152,8 @@ hdr.records    = str2double(fread(fid,8,'*char')');
 if hdr.records == -1
 	beep
 	disp('There appears to be a problem with this file; it returns an out-of-spec value of -1 for ''numberOfRecords.''')
-	disp('Attempting to read the file with ''edfReadUntilDone'' instead....');
-	[hdr, record] = edfreadUntilDone(fname, varargin);
+	% disp('Attempting to read the file with ''edfReadUntilDone'' instead....');
+	% [hdr, record] = edfreadUntilDone(fname, varargin);
 	return
 end
 hdr.duration   = str2double(fread(fid,8,'*char')');
