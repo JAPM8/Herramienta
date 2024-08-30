@@ -333,12 +333,12 @@ function edf_set = getlbls(data)
     montage = data{1,1};
     Fs = data{1,2};
     n = data{1,3};
-    t = data{1,4};
+    % t = data{1,4};
     lbls = data{1,5};
     % h_seiz = false;
     if ~isnan(Fs)
-        etiquetas = strings(n,1);
-
+        onehot_lbl = zeros(n,2);
+        
         nr = height(lbls);
         for lbl_idx = 1:nr
             strt_lbl = lbls.start_time(lbl_idx);
@@ -351,7 +351,7 @@ function edf_set = getlbls(data)
                 stop_idx = min(n, ceil(stop_lbl * Fs)+1);
 
                 % Asignar la etiqueta a las muestras correspondientes
-                etiquetas(strt_idx:stop_idx,1) = 'seiz';
+                onehot_lbl(strt_idx:stop_idx,2) = 1;
 
                 % h_seiz = true;
             elseif strcmp(lbl,'bckg')
@@ -360,21 +360,20 @@ function edf_set = getlbls(data)
                 stop_idx = min(n, ceil(stop_lbl * Fs)+1);
 
                 % Asignar la etiqueta a las muestras correspondientes
-                etiquetas(strt_idx:stop_idx,1) = 'bckg';
+                onehot_lbl(strt_idx:stop_idx,1) = 1;
             end
 
         end
-        etiquetas = categorical(etiquetas,{'bckg', 'seiz'});
-        edf_set = {montage,etiquetas};
+        % etiquetas = categorical(etiquetas,{'bckg', 'seiz'});
+        edf_set = table(montage,onehot_lbl);
     else
-        data = {zeros(2,22),zeros(2,1)};
-        edf_set = data;
+        edf_set = table(zeros(22,22),zeros(22,2));
     end
 end
 
 %% Prueba lectura datastore
 i = 1;
-eeg_prueba = cell(400,3);
+eeg_prueba = cell(400,2);
 
 while i <= 400
     eeg_prueba(i,:) = read(DS_train_ar);
@@ -382,6 +381,9 @@ while i <= 400
 end
 
 % eeg_set = readall(DS_train_ar);
+%% Generación de Minibatches
+
+mbatch_train = minibatchqueue(DS_train_ar,2);
 
 %% Creación de red neuronal LSTM
 
@@ -393,24 +395,24 @@ layers = [sequenceInputLayer(22)
           softmaxLayer];
 
 options = trainingOptions(  'adam', ...
-                            'InputDataFormats', 'CBT', ... % Rows - Cols - Lbls
-                            'TargetDataFormats','CBT',...
-                            'InitialLearnRate',0.01, ...
-                            'LearnRateDropPeriod',3, ...
+                            'InputDataFormats', 'BC', ... % Rows - Cols
+                            'TargetDataFormats','BC',...
+                            'shuffle','once',...    %
+                            'ValidationData',DS_dev_ar, ... %
+                            'InitialLearnRate',0.001, ...
+                            'LearnRateDropPeriod',10, ...
                             'LearnRateSchedule','piecewise', ...
                             'GradientThreshold',1, ...
                             'Plots','training-progress',...
-                            'Verbose',1,...
+                            'Verbose',false,...
+                            'MaxEpochs',53, ...
+                            'MiniBatchSize',60, ...
+                            'SequencePaddingDirection','right', ... %
+                            'SequenceLength', 'longest', ...
+                            'Metrics',["accuracy","auc"], ...
+                            'ObjectiveMetricName','auc', ...
+                            'OutputNetwork','best-validation', ...
                             'DispatchInBackground',true);
-% 'shuffle','once',...    %
-% 'ValidationData',DS_dev_ar, ... %
-% 'InputDataFormats', 'CBT', ...
-% 'MaxEpochs',53, ...
-% 'MiniBatchSize',60, ...
-% 'SequencePaddingDirection','right', ... %
-% 'SequenceLength', 'longest', ...
-
-mbq = minibatchqueue(DS_train_ar);
 
 LSTM_eegnet = trainnet(DS_train_ar,layers,"crossentropy",options);
 

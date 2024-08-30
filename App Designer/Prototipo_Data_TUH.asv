@@ -337,7 +337,7 @@ function edf_set = getlbls(data)
     lbls = data{1,5};
     % h_seiz = false;
     if ~isnan(Fs)
-        etiquetas = strings(n,1);
+        bckg_lbl = zeros(n,1);
 
         nr = height(lbls);
         for lbl_idx = 1:nr
@@ -365,16 +365,15 @@ function edf_set = getlbls(data)
 
         end
         etiquetas = categorical(etiquetas,{'bckg', 'seiz'});
-        edf_set = {montage,etiquetas,t};
+        edf_set = horzcat(montage,etiquetas);
     else
-        data = {zeros(2,22),zeros(2,1),zeros(2,1)};
-        edf_set = data;
+        edf_set = horzcat(zeros(22,22),zeros(22,1));
     end
 end
 
 %% Prueba lectura datastore
 i = 1;
-eeg_prueba = cell(400,3);
+eeg_prueba = cell(400,2);
 
 while i <= 400
     eeg_prueba(i,:) = read(DS_train_ar);
@@ -382,6 +381,9 @@ while i <= 400
 end
 
 % eeg_set = readall(DS_train_ar);
+%% Generación de Minibatches
+
+mbatch_train = minibatchqueue(DS_train_ar,2);
 
 %% Creación de red neuronal LSTM
 
@@ -393,14 +395,14 @@ layers = [sequenceInputLayer(22)
           softmaxLayer];
 
 options = trainingOptions(  'adam', ...
-                            'InputDataFormats', 'TCB', ... % Rows - Cols - Lbls
-                            'TargetDataFormats', 'B', ...
+                            'InputDataFormats', 'BC', ... % Rows - Cols
+                            'TargetDataFormats','BC',...
                             'InitialLearnRate',0.01, ...
                             'LearnRateDropPeriod',3, ...
                             'LearnRateSchedule','piecewise', ...
                             'GradientThreshold',1, ...
                             'Plots','training-progress',...
-                            'Verbose',0,...
+                            'Verbose',1,...
                             'DispatchInBackground',true);
 % 'shuffle','once',...    %
 % 'ValidationData',DS_dev_ar, ... %
@@ -409,7 +411,6 @@ options = trainingOptions(  'adam', ...
 % 'MiniBatchSize',60, ...
 % 'SequencePaddingDirection','right', ... %
 % 'SequenceLength', 'longest', ...
-
 
 LSTM_eegnet = trainnet(DS_train_ar,layers,"crossentropy",options);
 
