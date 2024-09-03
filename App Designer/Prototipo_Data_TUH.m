@@ -163,8 +163,7 @@ chnl_list = ["EEG FP1-REF","EEG FP2-REF","EEG F3-REF","EEG F4-REF",...
              "EEG C3-REF","EEG C4-REF","EEG P3-REF","EEG P4-REF",...
              "EEG O1-REF","EEG O2-REF","EEG F7-REF","EEG F8-REF",...
              "EEG T3-REF","EEG T4-REF","EEG T5-REF","EEG T6-REF",...
-             "EEG FZ-REF","EEG CZ-REF","EEG PZ-REF","EEG A1-REF",...
-             "EEG A2-REF"]';
+             "EEG CZ-REF","EEG A1-REF","EEG A2-REF"]';
 
 % Entrenamiento
 m = matfile("dir_setsData.mat"); 
@@ -195,12 +194,12 @@ for file_idx = 1:num_eval_sgn
                        edf_data(:,12) - edf_data(:,14),...  % F8-T4
                        edf_data(:,14) - edf_data(:,16),...  % T4-T6
                        edf_data(:,16) - edf_data(:,10),...  % T6-O2
-                       edf_data(:,20) - edf_data(:,13),...  % A1-T3
+                       edf_data(:,18) - edf_data(:,13),...  % A1-T3
                        edf_data(:,13) - edf_data(:,5),...   % T3-C3
-                       edf_data(:,5) - edf_data(:,18),...   % C3-CZ
-                       edf_data(:,18) - edf_data(:,6),...   % CZ-C4
+                       edf_data(:,5) - edf_data(:,17),...   % C3-CZ
+                       edf_data(:,17) - edf_data(:,6),...   % CZ-C4
                        edf_data(:,6) - edf_data(:,14),...   % C4-T4
-                       edf_data(:,14) - edf_data(:,21),...  % T4-A2
+                       edf_data(:,14) - edf_data(:,19),...  % T4-A2
                        edf_data(:,1) - edf_data(:,3),...    % FP1-F3
                        edf_data(:,3) - edf_data(:,5),...    % F3-C3
                        edf_data(:,5) - edf_data(:,7),...    % C3-P3
@@ -262,35 +261,28 @@ DS_lbl_eval_ar = fileDatastore(fullfile(folderPath,"eval","**","*_ar","*_bi.csv"
     
 DS_train_ar = combine(DS_sgn_train_ar, DS_lbl_train_ar);
 DS_train_ar = transform(DS_train_ar,@(data) getlbls(data));
+DS_train_ar = shuffle(DS_train_ar);
 
 DS_dev_ar = combine(DS_sgn_dev_ar, DS_lbl_dev_ar);
 DS_dev_ar = transform(DS_dev_ar,@(data) getlbls(data));
+DS_dev_ar = shuffle(DS_dev_ar);
 
 DS_eval_ar = combine(DS_sgn_eval_ar, DS_lbl_eval_ar);
 DS_eval_ar = transform(DS_eval_ar,@(data) getlbls(data));
+DS_eval_ar = shuffle(DS_eval_ar);
 
 function edf_val = readTUHEDF(filename)
     chnl_list = ["EEG FP1-REF","EEG FP2-REF","EEG F3-REF","EEG F4-REF",...
                  "EEG C3-REF","EEG C4-REF","EEG P3-REF","EEG P4-REF",...
                  "EEG O1-REF","EEG O2-REF","EEG F7-REF","EEG F8-REF",...
                  "EEG T3-REF","EEG T4-REF","EEG T5-REF","EEG T6-REF",...
-                 "EEG FZ-REF","EEG CZ-REF","EEG PZ-REF","EEG A1-REF",...
-                 "EEG A2-REF"]';
+                 "EEG CZ-REF","EEG A1-REF","EEG A2-REF"]';
 
     edf_hdr = edfinfo(filename);
-
-    % Verificar si todas las señales requeridas están presentes
-    if ~all(ismember(chnl_list, edf_hdr.SignalLabels))
-        % warning('Error en: %s', filename);
-        edf_val = {NaN,NaN,NaN,NaN};
-        return
-    end
-
     edf_data = cell2mat(table2cell(edfread(filename,"SelectedSignals",chnl_list)));
     
     edf_Fs = max(unique(edf_hdr.NumSamples/seconds(edf_hdr.DataRecordDuration)));
     edf_samples = (edf_hdr.NumDataRecords*max(edf_hdr.NumSamples));
-    edf_t = ((0:(edf_samples-1))/edf_Fs)';
     
     edf_montage = [edf_data(:,1) - edf_data(:,11),...   % FP1-F7
                    edf_data(:,11) - edf_data(:,13),...  % F7-T3
@@ -300,12 +292,12 @@ function edf_val = readTUHEDF(filename)
                    edf_data(:,12) - edf_data(:,14),...  % F8-T4
                    edf_data(:,14) - edf_data(:,16),...  % T4-T6
                    edf_data(:,16) - edf_data(:,10),...  % T6-O2
-                   edf_data(:,20) - edf_data(:,13),...  % A1-T3
+                   edf_data(:,18) - edf_data(:,13),...  % A1-T3
                    edf_data(:,13) - edf_data(:,5),...   % T3-C3
-                   edf_data(:,5) - edf_data(:,18),...   % C3-CZ
-                   edf_data(:,18) - edf_data(:,6),...   % CZ-C4
+                   edf_data(:,5) - edf_data(:,17),...   % C3-CZ
+                   edf_data(:,17) - edf_data(:,6),...   % CZ-C4
                    edf_data(:,6) - edf_data(:,14),...   % C4-T4
-                   edf_data(:,14) - edf_data(:,21),...  % T4-A2
+                   edf_data(:,14) - edf_data(:,19),...  % T4-A2
                    edf_data(:,1) - edf_data(:,3),...    % FP1-F3
                    edf_data(:,3) - edf_data(:,5),...    % F3-C3
                    edf_data(:,5) - edf_data(:,7),...    % C3-P3
@@ -315,7 +307,7 @@ function edf_val = readTUHEDF(filename)
                    edf_data(:,6) - edf_data(:,8),...    % C4-P4
                    edf_data(:,8) - edf_data(:,10)];     % P4-O2
 
-    edf_val = {edf_montage,edf_Fs,edf_samples,edf_t};
+    edf_val = {edf_montage,edf_Fs,edf_samples};
 end
 
 function tbl_lbl = read_lbl(filename)
@@ -328,92 +320,95 @@ function tbl_lbl = read_lbl(filename)
     % Leer la tabla con las opciones especificadas
     tbl_lbl = readtable(filename, opts);   
 end
-
+% Partir en fragmentos de 1024
 function edf_set = getlbls(data)
-    montage = data{1,1};
+    edf_montage = data{1,1};
     Fs = data{1,2};
     n = data{1,3};
-    % t = data{1,4};
-    lbls = data{1,5};
-    % h_seiz = false;
-    if ~isnan(Fs)
-        onehot_lbl = zeros(n,2);
-        
-        nr = height(lbls);
-        for lbl_idx = 1:nr
-            strt_lbl = lbls.start_time(lbl_idx);
-            stop_lbl = lbls.stop_time(lbl_idx);
-            lbl = lbls.label(lbl_idx);
+    lbls = data{1,4};
 
-            if strcmp(lbl,'seiz')
-                % Convertir tiempo en segundos a índices de muestra
-                strt_idx = max(1, ceil(strt_lbl * Fs)+1);
-                stop_idx = min(n, ceil(stop_lbl * Fs)+1);
+    etiquetas = strings(n, 1);
+    
+    nr = height(lbls);
+    for lbl_idx = 1:nr
+        strt_lbl = lbls.start_time(lbl_idx);
+        stop_lbl = lbls.stop_time(lbl_idx);
+        lbl = lbls.label(lbl_idx);
 
-                % Asignar la etiqueta a las muestras correspondientes
-                onehot_lbl(strt_idx:stop_idx,2) = 1;
+        if strcmp(lbl,'seiz')
+            % Convertir tiempo en segundos a índices de muestra
+            strt_idx = max(1, ceil(strt_lbl * Fs)+1);
+            stop_idx = min(n, ceil(stop_lbl * Fs)+1);
 
-                % h_seiz = true;
-            elseif strcmp(lbl,'bckg')
-                % Convertir tiempo en segundos a índices de muestra
-                strt_idx = max(1, ceil(strt_lbl * Fs)+1);
-                stop_idx = min(n, ceil(stop_lbl * Fs)+1);
+            % Asignar la etiqueta a las muestras correspondientes
+            etiquetas(strt_idx:stop_idx,1) = "seiz";
+        elseif strcmp(lbl,'bckg')
+            % Convertir tiempo en segundos a índices de muestra
+            strt_idx = max(1, ceil(strt_lbl * Fs)+1);
+            stop_idx = min(n, ceil(stop_lbl * Fs)+1);
 
-                % Asignar la etiqueta a las muestras correspondientes
-                onehot_lbl(strt_idx:stop_idx,1) = 1;
-            end
-
+            % Asignar la etiqueta a las muestras correspondientes
+            etiquetas(strt_idx:stop_idx,1) = "bckg";
         end
-        % etiquetas = categorical(etiquetas,{'bckg', 'seiz'});
-        edf_set = table(montage,onehot_lbl);
-    else
-        edf_set = table(zeros(22,22),zeros(22,2));
+
     end
+    etiquetas(etiquetas == "") = "n/a";
+    catg = {'n/a' 'bckg' 'seiz'};
+    etiquetas = categorical(etiquetas,catg);
+    etiquetas = onehotencode(etiquetas,2,ClassNames=catg);
+
+    targetLength = 1024;
+    sizeSet = size(edf_montage,1);
+    inRandIdx = ceil(((sizeSet-1024)-1).*rand(1,1) + 1);
+    endRandidx =  inRandIdx + targetLength - 1;   
+    edf_set = {edf_montage(inRandIdx:endRandidx,:)',etiquetas(inRandIdx:endRandidx,:)'};
 end
 
 %% Prueba lectura datastore
 i = 1;
-eeg_prueba = cell(400,2);
+eeg_prueba = cell(20,2);
 
-while i <= 400
+while i <= 20
     eeg_prueba(i,:) = read(DS_train_ar);
     i = i + 1;
 end
 
 % eeg_set = readall(DS_train_ar);
-%% Generación de Minibatches
-
-mbatch_train = minibatchqueue(DS_train_ar,2);
+% %% Generación de Minibatches
+% 
+% mbatch_train = minibatchqueue(DS_train_ar,2);
 
 %% Creación de red neuronal LSTM
+BILSTM_eegnet = dlnetwork;
 
 layers = [sequenceInputLayer(22)
-          bilstmLayer(300,'OutputMode','sequence')
-          dropoutLayer(0.2)
-          globalMaxPooling1dLayer
-          fullyConnectedLayer(2)
+          bilstmLayer(200,'OutputMode','sequence')
+          fullyConnectedLayer(3)
           softmaxLayer];
 
-options = trainingOptions(  'adam', ...
-                            'shuffle','once',...    %
-                            'ValidationData',DS_dev_ar, ... %
-                            'InitialLearnRate',0.01, ...
-                            'LearnRateDropPeriod',3, ...
-                            'LearnRateSchedule','piecewise', ...
-                            'GradientThreshold',1, ...
-                            'Plots','training-progress',...
-                            'Verbose',false,...
-                            'MaxEpochs',53, ...
-                            'MiniBatchSize',60, ...
-                            'SequencePaddingDirection','right', ... %
-                            'SequenceLength', 'longest', ...
-                            'Metrics',["accuracy"], ...
-                            'ObjectiveMetricName','accuracy', ...
-                            'OutputNetwork','best-validation', ...
-                            'DispatchInBackground',true);
+BILSTM_eegnet = addLayers(BILSTM_eegnet,layers);
 
-LSTM_eegnet = trainnet(DS_train_ar,layers,"crossentropy",options);
+options = trainingOptions(  "adam", ...
+                            Plots = "training-progress", ...
+                            Shuffle = "never", ...
+                            InputDataFormats = "CTB", ...
+                            TargetDataFormats = "CTB", ...
+                            MiniBatchSize = 50, ...
+                            MaxEpochs = 10, ...
+                            LearnRateSchedule = "piecewise", ...
+                            LearnRateDropPeriod = 1, ...
+                            InitialLearnRate = 0.01, ...
+                            ExecutionEnvironment = "gpu",...
+                            Verbose = 0);                    
 
+[BILSTM_eegnet, info] = trainnet(DS_train_ar,BILSTM_eegnet,"crossentropy",options);
+
+%% Validación de red
+
+% scores = minibatchpredict(BILSTM_eegnet,DS_eval_ar);
+    
+score = predict(BILSTM_eegnet,table2array(ac));
+[lbl,puntos] = scores2label(score,["bckg","seiz"]);
 %%
 % FP1	F7
 % F7	T3
@@ -438,3 +433,15 @@ LSTM_eegnet = trainnet(DS_train_ar,layers,"crossentropy",options);
 % C4	P4
 % P4	O2
 prueba = edfread(fullfile(relPath,edfName),"DataRecordOutputType","timetable","SelectedSignals",chnl_list);
+
+                            % shuffle = "once",...    %
+                            % InputDataFormats = "BCT", ...
+                            % TargetDataFormats = "BC", ...
+                            % MaxEpochs = 53, ...
+                            % MiniBatchSize = 64, ...
+                            % LearnRateSchedule = "piecewise", ...
+                            % GradientThreshold = 1, ...
+                            % SequencePaddingDirection = "right", ... %
+                            % SequenceLength = "longest", ...
+                            % ExecutionEnvironment = "parallel-auto",...
+                            % ValidationData = DS_dev_ar, ...
