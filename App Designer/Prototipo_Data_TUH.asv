@@ -331,8 +331,7 @@ function edf_set = getlbls(data)
     n = data{1,3};
     lbls = data{1,4};
 
-    largo = 4096;
-    etiquetas = strings(max(n,largo), 1);
+    etiquetas = strings(n, 1);
     
     nr = height(lbls);
     for lbl_idx = 1:nr
@@ -360,7 +359,9 @@ function edf_set = getlbls(data)
     etiquetas(etiquetas == "") = "n/a";
     catg = {'n/a' 'bckg' 'seiz'};
     etiquetas = categorical(etiquetas,catg);
+    % etiquetas = onehotencode(etiquetas,2,ClassNames=catg);
 
+    largo = 4096;
     sizeSet = size(edf_montage,1);
 
     if sizeSet >= largo
@@ -370,11 +371,12 @@ function edf_set = getlbls(data)
         etiquetas = etiquetas(1:(numChunks*largo),:);
         
         edf_montage = mat2cell(edf_montage,repmat(largo,1,numChunks));
+        % edf_montage = cellfun(@(x) x.',edf_montage, 'UniformOutput',false);
+        
         etiquetas = mat2cell(etiquetas,repmat(largo,1,numChunks));
+        % etiquetas = cellfun(@(x) x.',etiquetas, 'UniformOutput',false);
     else 
-        edf_montage(largo,:) = 0;
         edf_montage = {edf_montage};
-
         etiquetas = {etiquetas};
     end  
 
@@ -399,8 +401,7 @@ end
 BILSTM_eegnet = dlnetwork;
 
 layers = [sequenceInputLayer(22)
-          bilstmLayer(300,'OutputMode','sequence')
-          %dropoutLayer(0.2)
+          bilstmLayer(200,'OutputMode','sequence')
           fullyConnectedLayer(3)
           softmaxLayer];
 
@@ -409,15 +410,13 @@ BILSTM_eegnet = addLayers(BILSTM_eegnet,layers);
 options = trainingOptions(  "adam", ...
                             InputDataFormats = "TCB", ...
                             Plots = "training-progress", ...
-                            ValidationData = DS_dev_ar, ...
                             Shuffle = "never", ...
-                            MiniBatchSize = 60, ...
-                            MaxEpochs = 5, ...
+                            MiniBatchSize = 30, ...
+                            MaxEpochs = 60, ...
                             Metrics = "accuracy", ...
                             LearnRateSchedule = "piecewise", ...
                             LearnRateDropPeriod = 1, ...
                             InitialLearnRate = 0.001, ...
-                            ObjectiveMetricName = "accuracy", ...
                             ExecutionEnvironment = "gpu",...
                             Verbose = 0);                    
 
@@ -432,10 +431,7 @@ lbls = sgns(:,2);
 scores = minibatchpredict(BILSTM_eegnet,sgn,"MiniBatchSize",30,"InputDataFormats","TCB");
 YPred = scores2label(scores,{'n/a' 'bckg' 'seiz'});
 
-Ypred = reshape(YPred,28963,[]);
-lbls_s = vertcat(lbls{:});
-
-confusionchart([lbls_s(:)],[Ypred(:)],'Normalization','row-normalized');
+confusionchart([lbls(:)],[Ypred(:)],'Normalization','row-normalized');
 
 %%
 % FP1	F7
