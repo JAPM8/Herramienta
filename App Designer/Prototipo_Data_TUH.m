@@ -247,11 +247,11 @@ folderPath = ['C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway' ...
                '\Tesis\Data\Datos_TUH\v2.0.3\edf'];
 
 % En caso no se esté en ese folder, se cambia el working directory a este
- cd(folderPath);
+  cd(folderPath);
 
 % Se crean Datastores
 
-% Secuencia más pequeña 1028
+% Secuencia más pequeña 1280
 DS_sgn_train_ar = signalDatastore(fullfile(folderPath,"train","**","*_ar"),"ReadFcn",@readTUHEDF,"FileExtensions",".edf");
 DS_lbl_train_ar = fileDatastore(fullfile(folderPath,"train","**","*_ar","*_bi.csv"),"ReadFcn",@read_lbl);
 
@@ -259,20 +259,22 @@ DS_lbl_train_ar = fileDatastore(fullfile(folderPath,"train","**","*_ar","*_bi.cs
 DS_sgn_dev_ar = signalDatastore(fullfile(folderPath,"dev","**","*_ar"),"ReadFcn",@readTUHEDF,"FileExtensions",".edf");
 DS_lbl_dev_ar = fileDatastore(fullfile(folderPath,"dev","**","*_ar","*_bi.csv"),"ReadFcn",@read_lbl);
 
-% Secuencia más pequeña 3840
+% Secuencia más pequeña 4096
 DS_sgn_eval_ar = signalDatastore(fullfile(folderPath,"eval","**","*_ar"),"ReadFcn",@readTUHEDF,"FileExtensions",".edf");
 DS_lbl_eval_ar = fileDatastore(fullfile(folderPath,"eval","**","*_ar","*_bi.csv"),"ReadFcn",@read_lbl);
-    
+
+w_ventana = 1280;
+
 DS_train_ar = combine(DS_sgn_train_ar, DS_lbl_train_ar);
-DS_train_ar = transform(DS_train_ar,@(data) getlbls(data));
+DS_train_ar = transform(DS_train_ar,@(data) getlbls(data,w_ventana));
 DS_train_ar = shuffle(DS_train_ar);
 
 DS_dev_ar = combine(DS_sgn_dev_ar, DS_lbl_dev_ar);
-DS_dev_ar = transform(DS_dev_ar,@(data) getlbls(data));
+DS_dev_ar = transform(DS_dev_ar,@(data) getlbls(data,w_ventana));
 DS_dev_ar = shuffle(DS_dev_ar);
 
 DS_eval_ar = combine(DS_sgn_eval_ar, DS_lbl_eval_ar);
-DS_eval_ar = transform(DS_eval_ar,@(data) getlbls(data));
+DS_eval_ar = transform(DS_eval_ar,@(data) getlbls(data,w_ventana));
 DS_eval_ar = shuffle(DS_eval_ar);
 
 function edf_val = readTUHEDF(filename)
@@ -284,10 +286,10 @@ function edf_val = readTUHEDF(filename)
 
     edf_hdr = edfinfo(filename);
     edf_data = cell2mat(table2cell(edfread(filename,"SelectedSignals",chnl_list)));
-    
+
     edf_Fs = max(unique(edf_hdr.NumSamples/seconds(edf_hdr.DataRecordDuration)));
     edf_samples = (edf_hdr.NumDataRecords*max(edf_hdr.NumSamples));
-    
+    clear edf_hdr chnl_list
     edf_montage = [edf_data(:,1) - edf_data(:,11),...   % FP1-F7
                    edf_data(:,11) - edf_data(:,13),...  % F7-T3
                    edf_data(:,13) - edf_data(:,15),...  % T3-T5
@@ -310,6 +312,14 @@ function edf_val = readTUHEDF(filename)
                    edf_data(:,4) - edf_data(:,6),...    % F4-C4
                    edf_data(:,6) - edf_data(:,8),...    % C4-P4
                    edf_data(:,8) - edf_data(:,10)];     % P4-O2
+    clear edf_data
+    
+    if edf_Fs ~= 256
+        [P,Q] = rat(256/edf_Fs);
+        edf_montage = resample(edf_montage,P,Q);
+        edf_Fs = 256;
+        edf_samples = size(edf_montage,1);
+    end
 
     edf_val = {edf_montage,edf_Fs,edf_samples};
 end
@@ -325,13 +335,12 @@ function tbl_lbl = read_lbl(filename)
     tbl_lbl = readtable(filename, opts);   
 end
 
-function edf_set = getlbls(data)
+function edf_set = getlbls(data,ventana)
     edf_montage = data{1,1};
     Fs = data{1,2};
     n = data{1,3};
     lbls = data{1,4};
-
-    largo = 4096;
+    largo = ventana;
     etiquetas = strings(max(n,largo), 1);
     
     nr = height(lbls);
@@ -342,14 +351,14 @@ function edf_set = getlbls(data)
 
         if strcmp(lbl,'seiz')
             % Convertir tiempo en segundos a índices de muestra
-            strt_idx = max(1, ceil(strt_lbl * Fs)+1);
+            strt_idx = ceil(strt_lbl * Fs)+1;
             stop_idx = min(n, ceil(stop_lbl * Fs)+1);
 
             % Asignar la etiqueta a las muestras correspondientes
             etiquetas(strt_idx:stop_idx,1) = "seiz";
         elseif strcmp(lbl,'bckg')
             % Convertir tiempo en segundos a índices de muestra
-            strt_idx = max(1, ceil(strt_lbl * Fs)+1);
+            strt_idx = ceil(strt_lbl * Fs)+1;
             stop_idx = min(n, ceil(stop_lbl * Fs)+1);
 
             % Asignar la etiqueta a las muestras correspondientes
@@ -357,18 +366,20 @@ function edf_set = getlbls(data)
         end
 
     end
-    etiquetas(etiquetas == "") = "n/a";
-    catg = {'n/a' 'bckg' 'seiz'};
+    % etiquetas(etiquetas == "") = "n/a";
+    % catg = {'n/a' 'bckg' 'seiz'};
+    etiquetas(etiquetas == "") = "bckg";
+    catg = {'bckg' 'seiz'};
     etiquetas = categorical(etiquetas,catg);
 
     sizeSet = size(edf_montage,1);
 
     if sizeSet >= largo
         numChunks = floor(sizeSet/largo);
-        
+
         edf_montage = edf_montage(1:(numChunks*largo),:);
         etiquetas = etiquetas(1:(numChunks*largo),:);
-        
+
         edf_montage = mat2cell(edf_montage,repmat(largo,1,numChunks));
         etiquetas = mat2cell(etiquetas,repmat(largo,1,numChunks));
     else 
@@ -400,42 +411,52 @@ BILSTM_eegnet = dlnetwork;
 
 layers = [sequenceInputLayer(22)
           bilstmLayer(300,'OutputMode','sequence')
-          %dropoutLayer(0.2)
-          fullyConnectedLayer(3)
+          dropoutLayer(0.2)
+          bilstmLayer(150,'OutputMode','sequence')
+          dropoutLayer(0.2)
+          fullyConnectedLayer(2)
           softmaxLayer];
 
 BILSTM_eegnet = addLayers(BILSTM_eegnet,layers);
 
-options = trainingOptions(  "adam", ...
-                            InputDataFormats = "TCB", ...
-                            Plots = "training-progress", ...
-                            ValidationData = DS_dev_ar, ...
-                            Shuffle = "never", ...
-                            MiniBatchSize = 60, ...
-                            MaxEpochs = 5, ...
-                            Metrics = "accuracy", ...
-                            LearnRateSchedule = "piecewise", ...
-                            LearnRateDropPeriod = 1, ...
-                            InitialLearnRate = 0.001, ...
-                            ObjectiveMetricName = "accuracy", ...
-                            ExecutionEnvironment = "gpu",...
-                            Verbose = 0);                    
+options = trainingOptions("adam", ...
+                          Plots = "training-progress", ...
+                          Metrics = "accuracy", ...
+                          ObjectiveMetricName = "loss", ...
+                          Verbose = false, ....
+                          InputDataFormats = "TCB", ...
+                          MaxEpochs = 50, ... 
+                          MiniBatchSize = 79, ...                          
+                          Shuffle = "never", ...
+                          InitialLearnRate = 0.001, ...                          
+                          LearnRateSchedule = "piecewise", ...
+                          LearnRateDropPeriod = 5, ...
+                          ValidationData = DS_dev_ar, ...
+                          ValidationFrecuency = 50, ...
+                          OutputNetwork = "best-validation", ...
+                          ExecutionEnvironment = "gpu", ...
+                          PreprocessingEnvironment = "parallel");                    
 
-[BILSTM_eegnet, info] = trainnet(DS_train_ar,BILSTM_eegnet,"crossentropy",options);
+lossFcn = @(Y,T) crossentropy(Y,T, ...
+                              Weights=[0.582934021378548, 3.514444444444445], ...
+                              WeightsFormat="UC")*2;
 
+[BILSTM_eegnet, info] = trainnet(DS_train_ar,BILSTM_eegnet,lossFcn,options);
+
+%                             ValidationData = DS_dev_ar, ...
 
 %% Validación de red
 
 sgns = readall(DS_eval_ar);
 sgn = sgns(:,1);
 lbls = sgns(:,2);
-scores = minibatchpredict(BILSTM_eegnet,sgn,"MiniBatchSize",30,"InputDataFormats","TCB");
-YPred = scores2label(scores,{'n/a' 'bckg' 'seiz'});
-
-Ypred = reshape(YPred,28963,[]);
-lbls_s = vertcat(lbls{:});
-
-confusionchart([lbls_s(:)],[Ypred(:)],'Normalization','row-normalized');
+    scores = minibatchpredict(BILSTM_eegnet,sgn,"MiniBatchSize",150,"InputDataFormats","TCB");
+    YPred = scores2label(scores,{'n/a' 'bckg' 'seiz'});
+    
+    Ypred = reshape(YPred,28963,[]);
+    lbls_s = vertcat(lbls{:});
+    
+    confusionchart([lbls_s(:)],[Ypred(:)],'Normalization','row-normalized');
 
 %%
 % FP1	F7
