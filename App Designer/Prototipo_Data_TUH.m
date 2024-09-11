@@ -239,6 +239,50 @@ for file_idx = 1:num_eval_sgn
     
 end
 
+%% Extracción cantidad de etiquetas para pesos de cross entropy
+
+% Ruta de acceso a datos CORPUS TUH SEIZURE
+folderPath = ['C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway' ...
+               '\Tesis\Data\Datos_TUH\v2.0.3\edf'];
+
+DS_lbl_train_ar = fileDatastore(fullfile(folderPath,"train","**","*_ar","*_bi.csv"),"ReadFcn",@read_lbls); %#ok<NASGU>
+
+function tbl_lbl = read_lbls(filename)
+    Fs = 256;
+    h_sz = 0;
+    h_bckg = 0;
+
+   % Detectar las opciones de importación, saltando las primeras 5 líneas
+    opts = detectImportOptions(filename,"Delimiter",",","NumHeaderLines", 5);
+    
+    % Seleccionar solo las columnas 2 a la 4
+    opts.SelectedVariableNames = opts.VariableNames(2:4);
+
+    % Leer la tabla con las opciones especificadas
+    lbls = readtable(filename, opts);
+    
+    nr = height(lbls);
+
+    for lbl_idx = 1:nr
+        strt_lbl = lbls.start_time(lbl_idx);
+        stop_lbl = lbls.stop_time(lbl_idx);
+        lbl = lbls.label(lbl_idx);
+
+        if strcmp(lbl,'seiz')
+            % Convertir tiempo en segundos a índices de muestra
+            strt_idx = ceil(strt_lbl * Fs)+1;
+            stop_idx = ceil(stop_lbl * Fs)+1;    
+            h_sz = (stop_idx-strt_idx) + h_sz;
+        elseif strcmp(lbl,'bckg')
+            % Convertir tiempo en segundos a índices de muestra
+            strt_idx = ceil(strt_lbl * Fs)+1;
+            stop_idx = ceil(stop_lbl * Fs)+1;
+            h_bckg = (stop_idx-strt_idx) + h_bckg;
+        end
+    end
+    tbl_lbl = [h_bckg, h_sz];
+end
+
 %% Alternativa Datastores
 % Funcional
 
@@ -402,17 +446,24 @@ while i <= 20
 end
 
 % eeg_set = readall(DS_train_ar);
-% %% Generación de Minibatches
-% 
-% mbatch_train = minibatchqueue(DS_train_ar,2);
 
+%% Generación de Minibatches
+
+mbatch_train = minibatchqueue(DS_dev_ar, ...
+                              MiniBatchSize = 256, ...
+                              PartialMiniBatch = "discard", ...
+                              OutputAsDlarray=[1 0], ...
+                              MiniBatchFormat=["TCB" ""], ...
+                              OutputEnvironment=["gpu" "cpu"]);
+
+[X,Y] = next(mbatch_train);
 %% Creación de red neuronal LSTM
 BILSTM_eegnet = dlnetwork;
 
 layers = [sequenceInputLayer(22)
           bilstmLayer(300,'OutputMode','sequence')
           dropoutLayer(0.2)
-          bilstmLayer(150,'OutputMode','sequence')
+          bilstmLayer(250,'OutputMode','sequence')
           dropoutLayer(0.2)
           fullyConnectedLayer(2)
           softmaxLayer];
@@ -421,30 +472,38 @@ BILSTM_eegnet = addLayers(BILSTM_eegnet,layers);
 
 options = trainingOptions("adam", ...
                           Plots = "training-progress", ...
-                          Metrics = "accuracy", ...
+                          InputDataFormats = "TCB", ...
+                          MiniBatchSize = 256, ...  
                           ObjectiveMetricName = "loss", ...
                           Verbose = false, ....
-                          InputDataFormats = "TCB", ...
-                          MaxEpochs = 50, ... 
-                          MiniBatchSize = 79, ...                          
+                          MaxEpochs = 8, ... 
                           Shuffle = "never", ...
-                          InitialLearnRate = 0.001, ...                          
+                          InitialLearnRate = 0.0001, ...                          
                           LearnRateSchedule = "piecewise", ...
-                          LearnRateDropPeriod = 5, ...
-                          ValidationData = DS_dev_ar, ...
-                          ValidationFrecuency = 50, ...
+                          LearnRateDropPeriod = 2, ...
                           OutputNetwork = "best-validation", ...
-                          ExecutionEnvironment = "gpu", ...
-                          PreprocessingEnvironment = "parallel");                    
+                          ExecutionEnvironment = "cpu");                    
 
 lossFcn = @(Y,T) crossentropy(Y,T, ...
-                              Weights=[0.582934021378548, 3.514444444444445], ...
-                              WeightsFormat="UC")*2;
+                              Weights = [639/1222, 1084/95], ...
+                              WeightsFormat = "UC") * 2;
 
 [BILSTM_eegnet, info] = trainnet(DS_train_ar,BILSTM_eegnet,lossFcn,options);
 
-%                             ValidationData = DS_dev_ar, ...
+% Metrics = "accuracy", ...   
+% ValidationData = DS_dev_ar, ...
+% ValidationFrequency = 50, ...
+%% Prueba de un estudio
 
+sgn = read(DS_eval_ar);
+sgns = vertcat(sgn{:,1});
+lbls = vertcat(sgn{:,2});
+
+score = predict(BILSTM_eegnet,sgns,"InputDataFormats","TCB");
+Ypred = scores2label(score,{'bckg' 'seiz'});
+
+figure(1)
+confusionchart([lbls(:)],[Ypred(:)],'Normalization','row-normalized');
 %% Validación de red
 
 sgns = readall(DS_eval_ar);
