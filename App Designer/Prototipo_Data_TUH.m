@@ -2,16 +2,16 @@
  % Funcional 2024A-2024B
  % CORRA ESTE CÓDIGO POR SECCIONES
 
-    % Este script utiliza el CORPUS tuh_eeg_seizure v2.0.3, el cual contiene
-    % estudios EEG anotados con enfoque a detección de crisis epilépticas. 
+%   Este script utiliza el CORPUS tuh_eeg_seizure v2.0.3, el cual contiene
+%   estudios EEG anotados con enfoque a detección de crisis epilépticas. 
 
-    % Acceda al CORPUS: https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_seizure/
+%   Acceda al CORPUS: https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_seizure/
 %% Se carga directorio de data y se cambian extensiones a .csv
-% Esto se realiza pues el directorio originalmente trae las etiquetas
-% biclase (SEIZ/BCKG) con la extensión .csv_bi
+%   Esto se realiza pues el directorio originalmente trae las etiquetas
+%   biclase (SEIZ/BCKG) con la extensión .csv_bi
 
 % Ruta de acceso a datos CORPUS TUH SEIZURE
-    % Cambie la ruta a la de su computadora
+%   Cambie la ruta a la de su computadora
 folderPath = ['C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway' ...
     '\Tesis\Data\Datos_TUH\v2.0.3\edf'];
 
@@ -19,12 +19,12 @@ folderPath = ['C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway' ...
 cd(folderPath);
 
 % Se obtienen todas las direcciones de los archivos con extensión .csv_bi
-    % Notar que "**/" permite revisar en todos los subfolders
+%   Notar que "**/" permite revisar en todos los subfolders
 archivos = dir('**/*.csv_bi');
 
 % Ciclo for que permite cambiar la extensión .csv_bi a .csv
-    % Para mantener diferencia entre etiquetas multiclase (ya en .csv) y 
-    % biclase, se modifica el fin del nombre de las biclase a "_bi"
+%   Para mantener diferencia entre etiquetas multiclase (ya en .csv) y 
+%   biclase, se modifica el fin del nombre de las biclase a "_bi"
 for i = 1:numel(archivos)
     oldName = fullfile(archivos(i).folder,archivos(i).name);
     newName = fullfile(archivos(i).folder,[erase(archivos(i).name, ...
@@ -33,12 +33,12 @@ for i = 1:numel(archivos)
 end
 
 %% Procesamiento de archivos y separación por montajes
- % Se analiza cada archivo para determinar si pertenece a train o eval
- % Luego, se analiza el tipo de montaje "ar" o "le"
+%   Se analiza cada archivo para determinar si pertenece a train,dev o eval.
+%   Luego, se analiza el tipo de montaje "ar" o "le".
 clc
 
 % Ruta de acceso a datos CORPUS TUH SEIZURE
-    % Cambie la ruta a la de su computadora
+%   Cambie la ruta a la de su computadora
 folderPath = ['C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway' ...
                '\Tesis\Data\Datos_TUH\v2.0.3\edf'];
 
@@ -46,14 +46,14 @@ folderPath = ['C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway' ...
 cd(folderPath);
 
 % Directorio de entrenamiento y de pruebas de los archivos "_bi.csv"
-    % Notar que "**/" permite revisar en todos los subfolders
+%   Notar que "**/" permite revisar en todos los subfolders
 dirLbl_train = dir('train/**/*_bi.csv');
 dirLbl_dev = dir('dev/**/*_bi.csv');
 dirLbl_eval = dir('eval/**/*_bi.csv');
 
-% Filtrado según el tipo de montaje (devuelve arreglo de index que cumplen con el criterio como 1)
-    % train se refiere a estudios de entrenamiento, dev se refiere a
-    % development (≡ validación) y eval se refiera a evaluación
+% Filtrado según el tipo de montaje (devuelve arreglo de index que cumplen
+% con el criterio como 1), train se refiere a estudios de entrenamiento, 
+% dev se refiere a development (≡ validación) y eval se refiera a evaluación
 fltr_train_ar_a = contains({dirLbl_train.folder},'_tcp_ar_a');
 fltr_train_ar = contains({dirLbl_train.folder},'_tcp_ar') ~= fltr_train_ar_a;
 fltr_train_le = contains({dirLbl_train.folder},'_tcp_le');
@@ -67,8 +67,8 @@ fltr_eval_ar = contains({dirLbl_eval.folder},'_tcp_ar') ~= fltr_eval_ar_a;
 fltr_eval_le = contains({dirLbl_eval.folder},'_tcp_le');
 
 % Se separan directorios con ayuda de los filtros
-    % Se obtienen rutas por separado para cada tipo de montaje y objetivo
-    % de data (entrenamiento, development y evaluación)
+%   Se obtienen rutas por separado para cada tipo de montaje y objetivo
+%   de data (entrenamiento, development y evaluación)
 dirLbl_train_ar = dirLbl_train(fltr_train_ar);
 dirLbl_train_ar_a = dirLbl_train(fltr_train_ar_a);
 dirLbl_train_le = dirLbl_train(fltr_train_le);
@@ -82,11 +82,12 @@ dirLbl_eval_ar_a = dirLbl_eval(fltr_eval_ar_a);
 dirLbl_eval_le = dirLbl_eval(fltr_eval_le); % OJO: No hay muestras en EVAL
 
 %% Extracción de un estudio
- % Prototipo para extracción de canales de un estudio y sus etiquetas
+%   Prototipo para extracción de canales de un estudio y sus etiquetas
+
 clc
 
 % Canales disponibles para estudios con montaje tipo AR
-    % Montajes LE o AR_A cambian los canales disponibles
+%   Montajes LE o AR_A cambian los canales disponibles
 chnl_list = ["EEG FP1-REF","EEG FP2-REF","EEG F3-REF","EEG F4-REF",...
              "EEG C3-REF","EEG C4-REF","EEG P3-REF","EEG P4-REF",...
              "EEG O1-REF","EEG O2-REF","EEG F7-REF","EEG F8-REF",...
@@ -113,8 +114,8 @@ lbl_data = readtable(fullfile(relPath,relName),"Delimiter",",","NumHeaderLines",
 edf_hdr = edfinfo(fullfile(relPath,edfName));
 
 % Se lee canales seleccionados en "chnl_list" de EEG
-  % Note que la función devuelve una tabla que se convierte a cell (table2cell)
-  % y luego el cell se convierte a array (cell2mat)
+%   Note que la función devuelve una tabla que se convierte a cell (table2cell)
+%   y luego el cell se convierte a array (cell2mat)
 edf_data = cell2mat(table2cell(edfread(fullfile(relPath,edfName),"SelectedSignals",chnl_list)));
 
 % Se obtiene frecuencia de muestreo del estudio 
@@ -205,7 +206,7 @@ end
 etiquetas = categorical(etiquetas);
 
 % Gráfico de un canal (chnl) con sus etiquetas
-    % Si se selecciona un canal que no existe trabaja con el último canal
+%   Si se selecciona un canal que no existe, trabaja con el último canal
 chnl = 1;
 if chnl > height(edf_montage)
     warning(['El canal que ingreso supera la cantidad de canales disponibles.', ...
@@ -216,190 +217,190 @@ end
 plotsigroi(signalMask(etiquetas),edf_montage(:,chnl))
 
 %% Lectura datasets (NO CORRA ESTA SECCIÖN, LEA ANTES LOS COMENTARIOS)
-% Prototipo para guardar en memoria cada estudio con sus etiquetas.
-% El código es funcional, pero debido al tamaño de memoria que ocupa la
-% lectura NO es posible completarse con 32 Gb de RAM.
-    % Se probó alocar memoria, aumentar el límite de memoría de MATLAB y
-    % optimizar el código. Conclusión: pase a la siguiente sección para la solución 
-clc
-
-chnl_list = ["EEG FP1-REF","EEG FP2-REF","EEG F3-REF","EEG F4-REF",...
-             "EEG C3-REF","EEG C4-REF","EEG P3-REF","EEG P4-REF",...
-             "EEG O1-REF","EEG O2-REF","EEG F7-REF","EEG F8-REF",...
-             "EEG T3-REF","EEG T4-REF","EEG T5-REF","EEG T6-REF",...
-             "EEG CZ-REF","EEG A1-REF","EEG A2-REF"]';
-
-% Entrenamiento
-m = matfile("dir_setsData.mat"); 
-directorio = m.dirLbl_train_ar;
-
-num_eval_sgn = length(directorio);
-train_set = cell(num_eval_sgn,4);
-
-for file_idx = 1:num_eval_sgn
-    try
-        relPath = dirLbl_train_ar(file_idx).folder;
-        relName = dirLbl_train_ar(file_idx).name;
-        
-        edfName = [erase(relName,'_bi.csv'),'.edf'];
-        
-        lbl_data = readtable(fullfile(relPath,relName),"Delimiter",",","NumHeaderLines",5);
-        edf_hdr = edfinfo(fullfile(relPath,edfName));
-        edf_data = cell2mat(table2cell(edfread(fullfile(relPath,edfName),"SelectedSignals",chnl_list)));
-        
-        edf_Fs = max(unique(edf_hdr.NumSamples/seconds(edf_hdr.DataRecordDuration)));
-        edf_samples = (edf_hdr.NumDataRecords*max(edf_hdr.NumSamples));
+%   Prototipo para guardar en memoria cada estudio con sus etiquetas.
+%   El código es funcional, pero debido al tamaño de memoria que ocupa la
+%   lectura NO es posible completarse con 32 Gb de RAM.
     
-        edf_montage = [edf_data(:,1) - edf_data(:,11),...   % FP1-F7
-                       edf_data(:,11) - edf_data(:,13),...  % F7-T3
-                       edf_data(:,13) - edf_data(:,15),...  % T3-T5
-                       edf_data(:,15) - edf_data(:,9),...   % T5-O1
-                       edf_data(:,2) - edf_data(:,12),...   % FP2-F8
-                       edf_data(:,12) - edf_data(:,14),...  % F8-T4
-                       edf_data(:,14) - edf_data(:,16),...  % T4-T6
-                       edf_data(:,16) - edf_data(:,10),...  % T6-O2
-                       edf_data(:,18) - edf_data(:,13),...  % A1-T3
-                       edf_data(:,13) - edf_data(:,5),...   % T3-C3
-                       edf_data(:,5) - edf_data(:,17),...   % C3-CZ
-                       edf_data(:,17) - edf_data(:,6),...   % CZ-C4
-                       edf_data(:,6) - edf_data(:,14),...   % C4-T4
-                       edf_data(:,14) - edf_data(:,19),...  % T4-A2
-                       edf_data(:,1) - edf_data(:,3),...    % FP1-F3
-                       edf_data(:,3) - edf_data(:,5),...    % F3-C3
-                       edf_data(:,5) - edf_data(:,7),...    % C3-P3
-                       edf_data(:,7) - edf_data(:,9),...    % P3-O1
-                       edf_data(:,2) - edf_data(:,4),...    % FP2-F4
-                       edf_data(:,4) - edf_data(:,6),...    % F4-C4
-                       edf_data(:,6) - edf_data(:,8),...    % C4-P4
-                       edf_data(:,8) - edf_data(:,10)];     % P4-O2
-        
-        etiquetas = repmat("bckg",edf_samples, 1);
-        fw_seiz = false;
-    
-        nr = height(lbl_data);
-        for lbl_idx = 1:nr
-            strt_lbl = lbl_data.start_time(lbl_idx);
-            stop_lbl = lbl_data.stop_time(lbl_idx);
-            lbl = lbl_data.label(lbl_idx);
-        
-            if strcmp(lbl,'seiz')
-                % Convertir tiempo en segundos a índices de muestra
-                strt_idx = max(1, ceil(strt_lbl * edf_Fs)+1);
-                stop_idx = min(edf_samples, ceil(stop_lbl * edf_Fs)+1);
-                
-                % Asignar la etiqueta a las muestras correspondientes
-                etiquetas(strt_idx:stop_idx,1) = "seiz";
-                fw_seiz = true;
-            end
-        
-        end
-        etiquetas = categorical(etiquetas);
-        
-        train_set(file_idx,:) = {edf_montage,etiquetas,edf_Fs,fw_seiz};
-    catch ME
-        disp(ME)
-        disp(['Error en: ', num2str(file_idx)]);
-    end
-    
-end
+%   El código es el mismo de la sección anterior, pero con un ciclo for
+%   que recorre todos los estudios. Es decir, que repite por cada estudio
 
-%% Extracción cantidad de etiquetas para pesos de cross entropy
+%   Se probó alocar memoria, aumentar el límite de memoría de MATLAB y
+%   optimizar el código. Conclusión: pase a la siguiente sección para la solución 
+
+% Si desea probar, descomente el código debajo.
+
+% clc
+% 
+% chnl_list = ["EEG FP1-REF","EEG FP2-REF","EEG F3-REF","EEG F4-REF",...
+%              "EEG C3-REF","EEG C4-REF","EEG P3-REF","EEG P4-REF",...
+%              "EEG O1-REF","EEG O2-REF","EEG F7-REF","EEG F8-REF",...
+%              "EEG T3-REF","EEG T4-REF","EEG T5-REF","EEG T6-REF",...
+%              "EEG CZ-REF","EEG A1-REF","EEG A2-REF"]';
+% 
+% % Entrenamiento
+% m = matfile("dir_setsData.mat"); 
+% directorio = m.dirLbl_train_ar;
+% 
+% num_eval_sgn = length(directorio);
+% train_set = cell(num_eval_sgn,4);
+% 
+% for file_idx = 1:num_eval_sgn
+%     try
+%         relPath = dirLbl_train_ar(file_idx).folder;
+%         relName = dirLbl_train_ar(file_idx).name;
+% 
+%         edfName = [erase(relName,'_bi.csv'),'.edf'];
+% 
+%         lbl_data = readtable(fullfile(relPath,relName),"Delimiter",",","NumHeaderLines",5);
+%         edf_hdr = edfinfo(fullfile(relPath,edfName));
+%         edf_data = cell2mat(table2cell(edfread(fullfile(relPath,edfName),"SelectedSignals",chnl_list)));
+% 
+%         edf_Fs = max(unique(edf_hdr.NumSamples/seconds(edf_hdr.DataRecordDuration)));
+%         edf_samples = (edf_hdr.NumDataRecords*max(edf_hdr.NumSamples));
+% 
+%         edf_montage = [edf_data(:,1) - edf_data(:,11),...   % FP1-F7
+%                        edf_data(:,11) - edf_data(:,13),...  % F7-T3
+%                        edf_data(:,13) - edf_data(:,15),...  % T3-T5
+%                        edf_data(:,15) - edf_data(:,9),...   % T5-O1
+%                        edf_data(:,2) - edf_data(:,12),...   % FP2-F8
+%                        edf_data(:,12) - edf_data(:,14),...  % F8-T4
+%                        edf_data(:,14) - edf_data(:,16),...  % T4-T6
+%                        edf_data(:,16) - edf_data(:,10),...  % T6-O2
+%                        edf_data(:,18) - edf_data(:,13),...  % A1-T3
+%                        edf_data(:,13) - edf_data(:,5),...   % T3-C3
+%                        edf_data(:,5) - edf_data(:,17),...   % C3-CZ
+%                        edf_data(:,17) - edf_data(:,6),...   % CZ-C4
+%                        edf_data(:,6) - edf_data(:,14),...   % C4-T4
+%                        edf_data(:,14) - edf_data(:,19),...  % T4-A2
+%                        edf_data(:,1) - edf_data(:,3),...    % FP1-F3
+%                        edf_data(:,3) - edf_data(:,5),...    % F3-C3
+%                        edf_data(:,5) - edf_data(:,7),...    % C3-P3
+%                        edf_data(:,7) - edf_data(:,9),...    % P3-O1
+%                        edf_data(:,2) - edf_data(:,4),...    % FP2-F4
+%                        edf_data(:,4) - edf_data(:,6),...    % F4-C4
+%                        edf_data(:,6) - edf_data(:,8),...    % C4-P4
+%                        edf_data(:,8) - edf_data(:,10)];     % P4-O2
+% 
+%         etiquetas = repmat("bckg",edf_samples, 1);
+%         fw_seiz = false;
+% 
+%         nr = height(lbl_data);
+%         for lbl_idx = 1:nr
+%             strt_lbl = lbl_data.start_time(lbl_idx);
+%             stop_lbl = lbl_data.stop_time(lbl_idx);
+%             lbl = lbl_data.label(lbl_idx);
+% 
+%             if strcmp(lbl,'seiz')
+%                 % Convertir tiempo en segundos a índices de muestra
+%                 strt_idx = max(1, ceil(strt_lbl * edf_Fs)+1);
+%                 stop_idx = min(edf_samples, ceil(stop_lbl * edf_Fs)+1);
+% 
+%                 % Asignar la etiqueta a las muestras correspondientes
+%                 etiquetas(strt_idx:stop_idx,1) = "seiz";
+%                 fw_seiz = true;
+%             end
+% 
+%         end
+%         etiquetas = categorical(etiquetas);
+% 
+%         train_set(file_idx,:) = {edf_montage,etiquetas,edf_Fs,fw_seiz};
+%     catch ME
+%         disp(ME)
+%         disp(['Error en: ', num2str(file_idx)]);
+%     end
+% 
+% end
+
+%% Lectura de datasets con Datastores
+clc;
 
 % Ruta de acceso a datos CORPUS TUH SEIZURE
+%    Cambie la ruta a la de su computadora
 folderPath = ['C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway' ...
                '\Tesis\Data\Datos_TUH\v2.0.3\edf'];
 
-DS_lbl_train_ar = fileDatastore(fullfile(folderPath,"train","**","*_ar","*_bi.csv"),"ReadFcn",@read_lbls); %#ok<NASGU>
-
-function tbl_lbl = read_lbls(filename)
-    Fs = 256;
-    h_sz = 0;
-    h_bckg = 0;
-
-   % Detectar las opciones de importación, saltando las primeras 5 líneas
-    opts = detectImportOptions(filename,"Delimiter",",","NumHeaderLines", 5);
-    
-    % Seleccionar solo las columnas 2 a la 4
-    opts.SelectedVariableNames = opts.VariableNames(2:4);
-
-    % Leer la tabla con las opciones especificadas
-    lbls = readtable(filename, opts);
-    
-    nr = height(lbls);
-
-    for lbl_idx = 1:nr
-        strt_lbl = lbls.start_time(lbl_idx);
-        stop_lbl = lbls.stop_time(lbl_idx);
-        lbl = lbls.label(lbl_idx);
-
-        if strcmp(lbl,'seiz')
-            % Convertir tiempo en segundos a índices de muestra
-            strt_idx = ceil(strt_lbl * Fs)+1;
-            stop_idx = ceil(stop_lbl * Fs)+1;    
-            h_sz = (stop_idx-strt_idx) + h_sz;
-        elseif strcmp(lbl,'bckg')
-            % Convertir tiempo en segundos a índices de muestra
-            strt_idx = ceil(strt_lbl * Fs)+1;
-            stop_idx = ceil(stop_lbl * Fs)+1;
-            h_bckg = (stop_idx-strt_idx) + h_bckg;
-        end
-    end
-    tbl_lbl = [h_bckg, h_sz];
-end
-
-%% Alternativa Datastores
-% Funcional
-
-rng("default")
-
-% Ruta de acceso a datos CORPUS TUH SEIZURE
-folderPath = ['C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway' ...
-               '\Tesis\Data\Datos_TUH\v2.0.3\edf'];
-
-% En caso no se esté en ese folder, se cambia el working directory a este
-  cd(folderPath);
+% En caso MATLAB no se esté en ese folder, se cambia el working directory a este
+cd(folderPath);
 
 % Se crean Datastores
+%   Sigue la misma idea de los directorios, donde se da el path relativo
+%   y este devuelve las rutas de acceso a los archivos que cumplen con
+%   este. La ventaja es que permiten definir funciones de lectura,
+%   combinarlos y leer uno o todos a la vez.
+%
+%   Se aconseja leer la documentación de datastores: https://www.mathworks.com/help/matlab/datastore.html
 
-% Secuencia más pequeña 1280
+% Datastores de entrenamiento montaje AR (secuencia más pequeña 1280 muestras)
+%   Funciones definidas al final de la sección
 DS_sgn_train_ar = signalDatastore(fullfile(folderPath,"train","**","*_ar"),"ReadFcn",@readTUHEDF,"FileExtensions",".edf");
 DS_lbl_train_ar = fileDatastore(fullfile(folderPath,"train","**","*_ar","*_bi.csv"),"ReadFcn",@read_lbl);
 
-% Secuencia más pequeña 256
+% Datastores de development/validación montaje AR (secuencia más pequeña 256 muestras)
+%   Funciones definidas al final de la sección
 DS_sgn_dev_ar = signalDatastore(fullfile(folderPath,"dev","**","*_ar"),"ReadFcn",@readTUHEDF,"FileExtensions",".edf");
 DS_lbl_dev_ar = fileDatastore(fullfile(folderPath,"dev","**","*_ar","*_bi.csv"),"ReadFcn",@read_lbl);
 
-% Secuencia más pequeña 4096
+% Datastores de evaluación montaje AR (secuencia más pequeña 4096 muestras)
+%   Funciones definidas al final de la sección
 DS_sgn_eval_ar = signalDatastore(fullfile(folderPath,"eval","**","*_ar"),"ReadFcn",@readTUHEDF,"FileExtensions",".edf");
 DS_lbl_eval_ar = fileDatastore(fullfile(folderPath,"eval","**","*_ar","*_bi.csv"),"ReadFcn",@read_lbl);
 
-w_ventana = 1*60*256; % 1 minuto
+% Parámetro de longitud que se utiliza para dividir las señales en ventanas
+w_ventana = 60*256; %1 minuto con Fs de 256 Hz
 
+% Se combina datastores entrenamiento de EEG y etiquetas, de esta manera al leer el
+% datastore se obtienen las señales y las etiquetas (ambas sin procesar)
 DS_train_ar = combine(DS_sgn_train_ar, DS_lbl_train_ar);
+
+% Se transforma el datastore, con esto se procesan las señales y etiquetas
+%   Función definida al final de la sección
 DS_train_ar = transform(DS_train_ar,@(data) getlbls(data,w_ventana,2));
+
+% Se mezcla el datastore (mantiene la relación señal-etiqueta)
+%   Esto se hace para ayudar a que en el entrenamiento no se tenga
+%   alguna relación de aprendizaje entre pacientes
 DS_train_ar = shuffle(DS_train_ar);
 
+% Se combina, transforma y mezcla datastores de development/validación
+%   Función definida al final de la sección
 DS_dev_ar = combine(DS_sgn_dev_ar, DS_lbl_dev_ar);
 DS_dev_ar = transform(DS_dev_ar,@(data) getlbls(data,w_ventana,2));
 DS_dev_ar = shuffle(DS_dev_ar);
 
+% Se combina, transforma y mezcla datastores de evaluación
+%    Función definida al final de la sección
 DS_eval_ar = combine(DS_sgn_eval_ar, DS_lbl_eval_ar);
 DS_eval_ar = transform(DS_eval_ar,@(data) getlbls(data,w_ventana,3));
 % DS_eval_ar = shuffle(DS_eval_ar);
 
 function edf_val = readTUHEDF(filename)
+% 
+    % Canales disponibles para estudios con montaje tipo AR
+    %   Montajes LE o AR_A cambian los canales disponibles
     chnl_list = ["EEG FP1-REF","EEG FP2-REF","EEG F3-REF","EEG F4-REF",...
                  "EEG C3-REF","EEG C4-REF","EEG P3-REF","EEG P4-REF",...
                  "EEG O1-REF","EEG O2-REF","EEG F7-REF","EEG F8-REF",...
                  "EEG T3-REF","EEG T4-REF","EEG T5-REF","EEG T6-REF",...
                  "EEG CZ-REF","EEG A1-REF","EEG A2-REF"]';
-
+    
+    % Se obtiene header del EEG, este contiene la información de registro 
     edf_hdr = edfinfo(filename);
+
+    % Se lee canales seleccionados en "chnl_list" de EEG
+    %   Note que la función devuelve una tabla que se convierte a cell (table2cell)
+    %   y luego el cell se convierte a array (cell2mat)
     edf_data = cell2mat(table2cell(edfread(filename,"SelectedSignals",chnl_list)));
 
+    % Se obtiene frecuencia de muestreo del estudio 
     edf_Fs = max(unique(edf_hdr.NumSamples/seconds(edf_hdr.DataRecordDuration)));
+
+    % Se obtiene cantidad de muestras del estudio
     edf_samples = (edf_hdr.NumDataRecords*max(edf_hdr.NumSamples));
-    clear edf_hdr chnl_list
+
+    clear edf_hdr chnl_list % Limpieza de variables ya no útiles
+    
+    % Se obtiene montaje tipo AR, es decir, se restan los canales como indica
+    % comentario al lado de cada fila
     edf_montage = [edf_data(:,1) - edf_data(:,11),...   % FP1-F7
                    edf_data(:,11) - edf_data(:,13),...  % F7-T3
                    edf_data(:,13) - edf_data(:,15),...  % T3-T5
@@ -422,7 +423,8 @@ function edf_val = readTUHEDF(filename)
                    edf_data(:,4) - edf_data(:,6),...    % F4-C4
                    edf_data(:,6) - edf_data(:,8),...    % C4-P4
                    edf_data(:,8) - edf_data(:,10)];     % P4-O2
-    clear edf_data
+    
+    clear edf_data % Limpieza de variables ya no útiles
     
     if edf_Fs ~= 256
         [P,Q] = rat(256/edf_Fs);

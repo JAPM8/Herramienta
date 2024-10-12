@@ -1,3 +1,48 @@
+%% Extracción cantidad de etiquetas para pesos de cross entropy
+
+% Ruta de acceso a datos CORPUS TUH SEIZURE
+folderPath = ['C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway' ...
+               '\Tesis\Data\Datos_TUH\v2.0.3\edf'];
+
+DS_lbl_train_ar = fileDatastore(fullfile(folderPath,"train","**","*_ar","*_bi.csv"),"ReadFcn",@read_lbls);
+
+function tbl_lbl = read_lbls(filename)
+    Fs = 256;
+    h_sz = 0;
+    h_bckg = 0;
+
+   % Detectar las opciones de importación, saltando las primeras 5 líneas
+    opts = detectImportOptions(filename,"Delimiter",",","NumHeaderLines", 5);
+    
+    % Seleccionar solo las columnas 2 a la 4
+    opts.SelectedVariableNames = opts.VariableNames(2:4);
+
+    % Leer la tabla con las opciones especificadas
+    lbls = readtable(filename, opts);
+    
+    nr = height(lbls);
+
+    for lbl_idx = 1:nr
+        strt_lbl = lbls.start_time(lbl_idx);
+        stop_lbl = lbls.stop_time(lbl_idx);
+        lbl = lbls.label(lbl_idx);
+
+        if strcmp(lbl,'seiz')
+            % Convertir tiempo en segundos a índices de muestra
+            strt_idx = ceil(strt_lbl * Fs)+1;
+            stop_idx = ceil(stop_lbl * Fs)+1;    
+            h_sz = (stop_idx-strt_idx) + h_sz;
+        elseif strcmp(lbl,'bckg')
+            % Convertir tiempo en segundos a índices de muestra
+            strt_idx = ceil(strt_lbl * Fs)+1;
+            stop_idx = ceil(stop_lbl * Fs)+1;
+            h_bckg = (stop_idx-strt_idx) + h_bckg;
+        end
+    end
+    tbl_lbl = [h_bckg, h_sz];
+end
+
+%%
 load("Stats_TUHSEIZ.mat")
 
 train_wseiz = cell2table(train_wseiz,"VariableNames",["Path" "Fs" "n" "SEIZ" "BCKG" "N/A"]);
