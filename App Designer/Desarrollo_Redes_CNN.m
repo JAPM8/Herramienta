@@ -2,17 +2,6 @@
 % Funcional 2024A-2024B
 % CORRA ESTE CÓDIGO POR SECCIONES
 
-%   Se recomienda leer sección relacionada a redes RNN y capítulo #
-
-%   Este script utiliza el CORPUS tuh_eeg_seizure v2.0.3, el cual contiene
-%   estudios EEG anotados con enfoque a detección de crisis epilépticas. 
-
-%   En este, se plantean distintas estructuras de red RNN trabajadas, se
-%   detalla las opciones de entrenamiento trabajadas, las métricas
-%   empleadas y la validación de la red.
-
-% Requiere los archivos: "MiniCorpusBalanceadoSEIZTUH.mat"
-
 %% Carga de datos
 
 % Contiene las rutas de acceso para el dataset reducido
@@ -313,77 +302,64 @@ tallData = gather(tallEvalSet);
 evalSgns = tallData(:,1);
 evalLbls = tallData(:,2);
 
-clearvars -except trainSgns trainLbls devSgns devLbls evalSgns evalLbls w_ventana
+clearvars -except trainSgns trainLbls devSgns devLbls evalSgns evalLbls
 
-%% Verificación de labels
-etiquetas = trainLbls;
-etiquetas = vertcat(etiquetas{:});
-% stas_etiquetas = countlabels(etiquetas)
-stas_etiquetas1 = groupcounts(etiquetas);
+%% Creación de red neuronal TCN
 
-etiquetas = devLbls;
-etiquetas = vertcat(etiquetas{:});
-stas_etiquetas2 = groupcounts(etiquetas);
+numFeatures = 22;
+numClasses = 2;
 
-%% Creación de red neuronal LSTM
+numFilters = 64;
+filterSize = 5;
+dropoutFactor = 0.005;
+numBlocks = 6;
 
-LSTM_eegnet = dlnetwork;
+net = dlnetwork;
 
-layers = [sequenceInputLayer(22)
-          modwtLayer("Wavelet","sym2","Level",3,"IncludeLowpass",false)
-          flattenLayer()
-          lstmLayer(256,'OutputMode','sequence')
-          lstmLayer(128,'OutputMode','sequence')
-          fullyConnectedLayer(2)
-          dropoutLayer(0.1)
-          softmaxLayer];
+layer = sequenceInputLayer(numFeatures,Normalization="rescale-symmetric",Name="input");
 
-LSTM_eegnet = addLayers(LSTM_eegnet,layers);
-% cwtLayer("SignalLength",w_ventana,"Wavelet","amor","VoicesPerOctave",12,"TransformMode","squaremag")
-%% Opciones entrenamiento LSTM
-options = trainingOptions("sgdm", ...
-                          Plots = "training-progress", ...
-                          Metrics = "accuracy", ...
-                          Shuffle = "every-epoch", ...
-                          MiniBatchSize = 10, ...  
-                          ValidationData = {devSgns,devLbls}, ...
-                          ValidationFrequency = 10, ...
-                          Verbose = true, ....
-                          MaxEpochs = 80, ... 
-                          InitialLearnRate = 1e-4, ... 
-                          GradientThreshold = 1, ...
-                          OutputNetwork = "last-iteration", ...
-                          ExecutionEnvironment = "auto");  
+net = addLayers(net,layer);
 
-lossFcn = @(Y,T) crossentropy(Y,T, ...
-                              Weights = [0.1, 0.9], ...
-                              NormalizationFactor = "all-elements", ...
-                              WeightsFormat = "UC");
+outputName = layer.Name;
 
-[LSTM_eegnet, infoLSTM] = trainnet(trainSgns,trainLbls,LSTM_eegnet,lossFcn,options);
-
-% GradientThreshold = 1, ...
-% ObjectiveMetricName = "accuracy", ...
-% Shuffle = "every-epoch", ...
-% ValidationData = {devData(:,1),devData(:,2)}, ...
-% ValidationFrequency = 26, ...
-% InputDataFormats = "TCB", ...
-
-%% Puesta a prueba de red
-validacionComp = false;
-
-if validacionComp
-    yhat = minibatchpredict(LSTM_eegnet,evalSgns,"MiniBatchSize",4,"UniformOutput",false);
-    y = evalLbls;
-else
-    % Metricas
-    statsLSTM_eegnet = testnet(LSTM_eegnet,devSgns,devLbls,{"accuracy",lossFcn},"MiniBatchSize",5);
+for i = 1:numBlocks
+    dilationFactor = 2^(i-1);
     
-    % Realizar predicciones sobre las señales
-    yhat = minibatchpredict(LSTM_eegnet,devSgns,"MiniBatchSize",4,"UniformOutput",false);
-    yhat = cellfun(@(x) reshape(extractdata(x),[],2),yhat,UniformOutput=false);
-    y = devLbls;
+    layers = [
+        convolution1dLayer(filterSize,numFilters,DilationFactor=dilationFactor,Padding="causal",Name="conv1_"+i)
+        layerNormalizationLayer
+        spatialDropoutLayer(Probability=dropoutFactor)
+        convolution1dLayer(filterSize,numFilters,DilationFactor=dilationFactor,Padding="causal")
+        layerNormalizationLayer
+        reluLayer
+        spatialDropoutLayer(Probability=dropoutFactor)
+        additionLayer(2,Name="add_"+i)];
+
+    % Add and connect layers.
+    net = addLayers(net,layers);
+    net = connectLayers(net,outputName,"conv1_"+i);
+
+    % Skip connection.
+    if i == 1
+        % Include convolution in first skip connection.
+        layer = convolution1dLayer(1,numFilters,Name="convSkip");
+
+        net = addLayers(net,layer);
+        net = connectLayers(net,outputName,"convSkip");
+        net = connectLayers(net,"convSkip","add_" + i + "/in2");
+    else
+        net = connectLayers(net,outputName,"add_" + i + "/in2");
+    end
+    
+    % Update layer output name.
+    outputName = "add_" + i;
 end
 
-figure(1)
-plotconfusion(cell2mat(y(:))',cell2mat(yhat(:))');
+layers = [
+    fullyConnectedLayer(numClasses,Name="fc")
+    softmaxLayer];
+
+net = addLayers(net,layers);
+net = connectLayers(net,outputName,"fc");
+
+TCN_eegnet = net;

@@ -1,68 +1,64 @@
-%% Extracción cantidad de etiquetas para pesos de cross entropy
+%% Código realizado por: Javier Alejandro Pérez Marín (20183)
+% Funcional 2024A-2024B
+% CORRA ESTE CÓDIGO POR SECCIONES
 
-% Ruta de acceso a datos CORPUS TUH SEIZURE
-folderPath = ['C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway' ...
-               '\Tesis\Data\Datos_TUH\v2.0.3\edf'];
+%   Antes analice el script "Prototipo_Data_TUH.m"
 
-DS_lbl_train_ar = fileDatastore(fullfile(folderPath,"train","**","*_ar","*_bi.csv"),"ReadFcn",@read_lbls);
+%   Este script utiliza el CORPUS tuh_eeg_seizure v2.0.3, el cual contiene
+%   estudios EEG anotados con enfoque a detección de crisis epilépticas. 
 
-function tbl_lbl = read_lbls(filename)
-    Fs = 256;
-    h_sz = 0;
-    h_bckg = 0;
+%   En este se extraen estadísticas de interés del corpus, también se
+%   ejemplifica cómo sacar pesos para funciones de pérdida
 
-   % Detectar las opciones de importación, saltando las primeras 5 líneas
-    opts = detectImportOptions(filename,"Delimiter",",","NumHeaderLines", 5);
-    
-    % Seleccionar solo las columnas 2 a la 4
-    opts.SelectedVariableNames = opts.VariableNames(2:4);
+% Requiere los archivos: "QtyEtiquetasTUHSEIZ.mat"
 
-    % Leer la tabla con las opciones especificadas
-    lbls = readtable(filename, opts);
-    
-    nr = height(lbls);
+%% Carga archivo de resumen de cada estudio
+%   Contiene 4 variables:
+%       * "train_wseiz", "dev_wseiz" & "eval_wseiz": contienen la ruta de
+%         acceso (path), Fs, cantidad de muestras (n) y banderas si
+%         contiene o no las etiquetas "Seiz"/"BCKG" o ninguna "N/A" (no hay
+%         algún caso detectado).
+%       * "qty_labels": contiene la cantidad de etiquetas de todos los
+%         estudios remuestreados a 256 Hz. Estas cantidades se expresan
+%         como [cantidad "bckg", cantidad "seiz"].
+%
+%   El archivo debe de estar en el working directory
 
-    for lbl_idx = 1:nr
-        strt_lbl = lbls.start_time(lbl_idx);
-        stop_lbl = lbls.stop_time(lbl_idx);
-        lbl = lbls.label(lbl_idx);
-
-        if strcmp(lbl,'seiz')
-            % Convertir tiempo en segundos a índices de muestra
-            strt_idx = ceil(strt_lbl * Fs)+1;
-            stop_idx = ceil(stop_lbl * Fs)+1;    
-            h_sz = (stop_idx-strt_idx) + h_sz;
-        elseif strcmp(lbl,'bckg')
-            % Convertir tiempo en segundos a índices de muestra
-            strt_idx = ceil(strt_lbl * Fs)+1;
-            stop_idx = ceil(stop_lbl * Fs)+1;
-            h_bckg = (stop_idx-strt_idx) + h_bckg;
-        end
-    end
-    tbl_lbl = [h_bckg, h_sz];
-end
-
-%%
-load("Stats_TUHSEIZ.mat")
-
-train_wseiz = cell2table(train_wseiz,"VariableNames",["Path" "Fs" "n" "SEIZ" "BCKG" "N/A"]);
-dev_wseiz = cell2table(dev_wseiz,"VariableNames",["Path" "Fs" "n" "SEIZ" "BCKG" "N/A"]);
-eval_wseiz = cell2table(eval_wseiz,"VariableNames",["Path" "Fs" "n" "SEIZ" "BCKG" "N/A"]);
-%% Estadísticas set de train
-stats_train = grpstats(train_wseiz,["Fs","SEIZ", "BCKG"],["min","max"],"DataVars","n");
-%% Estadísticas set de dev
-stats_dev = grpstats(dev_wseiz,["Fs","SEIZ", "BCKG"],["min","max"],"DataVars","n");
-%% Estadísticas set de eval
-stats_eval = grpstats(eval_wseiz,["Fs","SEIZ", "BCKG"],["min","max"],"DataVars","n");
-
-%% Cantidad de etiquetas por estudio
 load("QtyEtiquetasTUHSEIZ.mat")
+
+%% Generación de estadísticas 
+%   Estas son de utilidad para resumir el corpus.
+
+% Estadísticas set de train
+%   Se agrupan por Fs y si presentan "seiz" o "bckg", se obtiene estudio
+%   más corto al más largo
+stats_train = grpstats(train_wseiz,["Fs","Seiz", "BCKG"],["min","max"],"DataVars","n");
+
+% Estadísticas set de dev
+%   Se agrupan por Fs y si presentan "seiz" o "bckg", se obtiene estudio
+%   más corto al más largo
+stats_dev = grpstats(dev_wseiz,["Fs","Seiz", "BCKG"],["min","max"],"DataVars","n");
+
+% Estadísticas set de eval
+%   Se agrupan por Fs y si presentan "seiz" o "bckg", se obtiene estudio
+%   más corto al más largo
+stats_eval = grpstats(eval_wseiz,["Fs","Seiz", "BCKG"],["min","max"],"DataVars","n");
+
+%% Resampling y cantidad de etiquetas por cada clase - Ser entrenamiento
+%   Teniendo en cuenta la Fs más común de 256 Hz, se actualizan
+%   estadísticas aplicando el resampling a 256 Hz y se añade la cantidad de
+%   etiquetas de cada clase.
+
+% Se elimina columna de "N/A", pues no se presenta un caso
 train_wseiz.("N/A") = [];
 
+% Se añade cantidad de etiquetas de cada clase
 qty_labels = vertcat(qty_labels{:});
 train_wseiz.BCKG = qty_labels(:,1);
 train_wseiz.Seiz = qty_labels(:,2);
-blocks = zeros(height(train_wseiz),1);
+
+% Ciclo que aplica resampling y actualiza cantidad de etiquetas por cada
+% clase
 for i = 1:height(train_wseiz)
     Fs = train_wseiz.Fs(i);
 
@@ -70,67 +66,54 @@ for i = 1:height(train_wseiz)
         train_wseiz.n(i) = train_wseiz.n(i) * 256 / Fs;
         train_wseiz.Fs(i) = 256;
     end
-    blocks(i,1) =  floor(train_wseiz.n(i) / 1280); 
     train_wseiz.BCKG(i) = train_wseiz.n(i) - train_wseiz.Seiz(i);
 end
 
-%% Obtención pesos para cross-entropy
+piechart([sum(train_wseiz.Seiz),sum(train_wseiz.BCKG)],{'Seiz', 'BCKG'})
+title('Comparación entre clases');
+%% Obtención pesos para resolución de clases imbalanceadas
+%   Dado que el set completo tiene más etiquetas de la clase "BCKG" en
+%   ocasiones ha demostrado ser útil obtener pesos para cada clase y así
+%   darle mayor importancia a la clase menos abundante.
+%
+%   Se recomienda leer: https://www.mathworks.com/help/deeplearning/ug/sequence-classification-using-inverse-frequency-class-weights.html
 
+% Totales de cada clase y total general
 qty_seizLbl = sum(train_wseiz.Seiz);
 qty_bckgLbl = sum(train_wseiz.BCKG);
-
 qty_lbls = qty_seizLbl + qty_bckgLbl;
 
+% Pesos de cada clase
 classWeights = [qty_lbls/(2*qty_bckgLbl), qty_lbls/(2*qty_seizLbl)];
 
-%% Obtención de índices para data set balanceado (no alcanzado)
-rng("twister")
-load("Stats_TUHSEIZ.mat")
+%% Alternativa dataset balanceado
+%   Una alternativa para resolver la diferencia entre clases, es obtener un
+%   subconjunto de los datos con características similares y que sea
+%   balanceado. 
+%
+%   Esta sección detalla la obtención del subconjunto obtenido en el
+%   archivo "MiniCorpusBalanceadoSEIZTUH.mat"
 
-train_wseiz = cell2table(train_wseiz,"VariableNames",["Path" "Fs" "n" "Seiz" "BCKG" "N/A"]);
-dev_wseiz = cell2table(dev_wseiz,"VariableNames",["Path" "Fs" "n" "SEIZ" "BCKG" "N/A"]);
-eval_wseiz = cell2table(eval_wseiz,"VariableNames",["Path" "Fs" "n" "SEIZ" "BCKG" "N/A"]);
-
-eeg_train_wseiz = train_wseiz(train_wseiz.Fs == 256 & train_wseiz.Seiz == 0,:);
-eeg_train_wbckg = train_wseiz(train_wseiz.Fs == 256 & train_wseiz.BCKG == 0,:);
-
-eeg_dev_wseiz = dev_wseiz(dev_wseiz.Fs == 256 & dev_wseiz.Seiz == 1,:);
-eeg_dev_wbckg = dev_wseiz(dev_wseiz.Fs == 256 & dev_wseiz.BCKG == 1,:);
-
-% Usar para train 406 wseiz y 16 wbckg (8%), dev 102 wseiz y 26 wbckg (25%)
-rnd_idx_trainbckg = randperm(height(eeg_train_wbckg),33)';
-rnd_idx_devseiz = randperm(height(eeg_dev_wseiz),height(eeg_dev_wseiz))';
-rnd_idx_devbckg = randperm(height(eeg_dev_wbckg),26)';
-
-eeg_dtrain_wseiz = eeg_dev_wseiz(rnd_idx_devseiz(1:107,:),:);
-eeg_train = vertcat(eeg_train_wseiz,eeg_dtrain_wseiz,eeg_train_wbckg(rnd_idx_trainbckg,:));
-
-eeg_dev_seiz = eeg_dev_wseiz(rnd_idx_devseiz(108:end,:),:);
-eeg_dev = vertcat(eeg_dev_seiz,eeg_dev_wbckg(rnd_idx_devbckg,:));
-
-%% Obteniendo dataset balanceado
-
-load("QtyEtiquetasTUHSEIZ.mat")
-train_wseiz.("N/A") = [];
-qty_labels = vertcat(qty_labels{:});
-train_wseiz.BCKG = qty_labels(:,1);
-train_wseiz.Seiz = qty_labels(:,2);
-
-for i = 1:height(train_wseiz)
-    Fs = train_wseiz.Fs(i);
-    if Fs ~= 256
-        train_wseiz.n(i) = train_wseiz.n(i) * 256 / Fs;
-        train_wseiz.Fs(i) = 256;
-    end
-    train_wseiz.BCKG(i) = train_wseiz.n(i) - train_wseiz.Seiz(i);
-end
-
+% Se seleccionan todos los estudios que contienen etiquetas de la clase "seiz"
 eeg_train_wseiz = train_wseiz(train_wseiz.Fs == 256 & train_wseiz.Seiz > 0,:);
-eeg_train_wseiz.Duration = seconds(eeg_train_wseiz.n./eeg_train_wseiz.Fs);
-train_dur_resumen = groupcounts(eeg_train_wseiz,"Duration");
-set_train = eeg_train_wseiz(eeg_train_wseiz.n == 153856,:);
 
+% Se obtiene la duración de cada estudio seleccionado
+eeg_train_wseiz.Duration = seconds(eeg_train_wseiz.n./eeg_train_wseiz.Fs);
+
+% Se obtiene frecuencia de duración de los estudios 
+train_dur_resumen = groupcounts(eeg_train_wseiz,"Duration");
+
+% Se obtiene duración con mayor frecuencia
+[~, idx] = max(train_dur_resumen.GroupCount);
+train_dur = seconds(train_dur_resumen.Duration(idx));
+
+% Selección de estudios de entrenamientola con duración más común
+set_train = eeg_train_wseiz(eeg_train_wseiz.n == train_dur*256,:);
+
+% Se repite procedimiento con set de development/validación
 eeg_val_wseiz = dev_wseiz(dev_wseiz.Fs == 256 & dev_wseiz.Seiz == 1,:);
 eeg_val_wseiz.Duration = seconds(eeg_val_wseiz.n./eeg_val_wseiz.Fs);
 val_dur_resumen = groupcounts(eeg_val_wseiz,"Duration");
-set_val = eeg_val_wseiz(eeg_val_wseiz.n == 153856,:);
+[~, idx] = max(val_dur_resumen.GroupCount);
+val_dur = seconds(val_dur_resumen.Duration(idx));
+set_val = eeg_val_wseiz(eeg_val_wseiz.n == val_dur*256,:);

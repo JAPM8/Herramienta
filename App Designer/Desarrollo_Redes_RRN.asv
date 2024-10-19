@@ -330,7 +330,8 @@ stas_etiquetas2 = groupcounts(etiquetas);
 LSTM_eegnet = dlnetwork;
 
 layers = [sequenceInputLayer(22)
-          modwtLayer("Wavelet","sym2","Level",3,"IncludeLowpass",false)
+        modwtLayer("Wavelet","sym2","Level",3,"IncludeLowpass",false)
+          cwtLayer("SignalLength",w_ventana,"Wavelet","amor","VoicesPerOctave",12,"TransformMode","squaremag")
           flattenLayer()
           lstmLayer(256,'OutputMode','sequence')
           lstmLayer(128,'OutputMode','sequence')
@@ -339,7 +340,7 @@ layers = [sequenceInputLayer(22)
           softmaxLayer];
 
 LSTM_eegnet = addLayers(LSTM_eegnet,layers);
-% cwtLayer("SignalLength",w_ventana,"Wavelet","amor","VoicesPerOctave",12,"TransformMode","squaremag")
+% modwtLayer("Wavelet","sym2","Level",3,"IncludeLowpass",false)
 %% Opciones entrenamiento LSTM
 options = trainingOptions("sgdm", ...
                           Plots = "training-progress", ...

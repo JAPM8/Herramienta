@@ -1,9 +1,13 @@
-%% Código realizado por: Javier Pérez
- % Funcional 2024A-2024B
- % CORRA ESTE CÓDIGO POR SECCIONES
+%% Código realizado por: Javier Alejandro Pérez Marín (20183)
+% Funcional 2024A-2024B
+% CORRA ESTE CÓDIGO POR SECCIONES
 
 %   Este script utiliza el CORPUS tuh_eeg_seizure v2.0.3, el cual contiene
 %   estudios EEG anotados con enfoque a detección de crisis epilépticas. 
+
+%   Tiene como objetivo ilustrar cómo extraer las señales y etiquetas en el
+%   formato de la base de datos. Así como, diferentes maneras de
+%   procesamiento 
 
 %   Acceda al CORPUS: https://isip.piconepress.com/projects/nedc/data/tuh_eeg/tuh_eeg_seizure/
 %% Se carga directorio de data y se cambian extensiones a .csv
@@ -373,6 +377,7 @@ DS_eval_ar = combine(DS_sgn_eval_ar, DS_lbl_eval_ar);
 DS_eval_ar = transform(DS_eval_ar,@(data) getlbls(data,w_ventana,3));
 % DS_eval_ar = shuffle(DS_eval_ar);
 
+% Funciones de lectura de datastores
 function edf_val = readTUHEDF(filename)
 % Función de lectura para datastores de señales al hacer read de estos
 

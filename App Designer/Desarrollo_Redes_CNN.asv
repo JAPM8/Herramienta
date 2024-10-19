@@ -2,50 +2,34 @@
 % Funcional 2024A-2024B
 % CORRA ESTE CÓDIGO POR SECCIONES
 
-%   Se recomienda leer sección relacionada a redes RNN y capítulo #
-
-%   Este script utiliza el CORPUS tuh_eeg_seizure v2.0.3, el cual contiene
-%   estudios EEG anotados con enfoque a detección de crisis epilépticas. 
-
-%   En este, se plantean distintas estructuras de red RNN trabajadas, se
-%   detalla las opciones de entrenamiento trabajadas, las métricas
-%   empleadas y la validación de la red.
-
-% Requiere los archivos: "MiniCorpusBalanceadoSEIZTUH.mat"
-
-%% Carga de datos
-
-% Contiene las rutas de acceso para el dataset reducido
-%   Este dataset es equilibrado entre clases para el subconjunto de
-%   entrenamiento, el subconjunto de validación solo cumple con ser de la
-%   misma duración. El subconjunto de evaluación considera todos los casos.
-load MiniCorpusBalanceadoSEIZTUH.mat
-
-% Se obtienen las rutas de los subconjuntos específicos entrenamiento/validación
-%   Note que el .mat contiene las rutas a los archivos EDF por ello se
-%   manipulan para obtener las rutas de las etiquetas
-rutasSgnTrain = set_train.Path;
-rutasLblsTrain = cellfun(@(ruta) strrep(ruta,'.edf','_bi.csv'),rutasSgnTrain,UniformOutput = false);
-
-rutasSgnDev = set_val.Path;
-rutasLblsDev = cellfun(@(ruta) strrep(ruta,'.edf','_bi.csv'),rutasSgnDev,UniformOutput = false);
-
 %% Lectura de datasets con Datastores
+clc
 
 % Ruta de acceso a datos CORPUS TUH SEIZURE
-%   Cambie la ruta a la de su computadora
+%    Cambie la ruta a la de su computadora
 folderPath = ['C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway' ...
                '\Tesis\Data\Datos_TUH\v2.0.3\edf'];
 
-% Datastores de entrenamiento montaje AR
-%   Funciones definidas al final de la sección
-DS_sgn_train_ar = signalDatastore(rutasSgnTrain,"ReadFcn",@readTUHEDF);
-DS_lbl_train_ar = fileDatastore(rutasLblsTrain,"ReadFcn",@read_lbl);
+% En caso MATLAB no se esté en ese folder, se cambia el working directory a este
+cd(folderPath);
 
-% Datastores de development/validación montaje AR
+% Se crean Datastores
+%   Sigue la misma idea de los directorios, donde se da el path relativo
+%   y este devuelve las rutas de acceso a los archivos que cumplen con
+%   este. La ventaja es que permiten definir funciones de lectura,
+%   combinarlos y leer uno o todos a la vez.
+%
+%   Se aconseja leer la documentación de datastores: https://www.mathworks.com/help/matlab/datastore.html
+
+% Datastores de entrenamiento montaje AR (secuencia más pequeña 1280 muestras)
 %   Funciones definidas al final de la sección
-DS_sgn_dev_ar = signalDatastore(rutasSgnDev,"ReadFcn",@readTUHEDF);
-DS_lbl_dev_ar = fileDatastore(rutasLblsDev,"ReadFcn",@read_lbl);
+DS_sgn_train_ar = signalDatastore(fullfile(folderPath,"train","**","*_ar"),"ReadFcn",@readTUHEDF,"FileExtensions",".edf");
+DS_lbl_train_ar = fileDatastore(fullfile(folderPath,"train","**","*_ar","*_bi.csv"),"ReadFcn",@read_lbl);
+
+% Datastores de development/validación montaje AR (secuencia más pequeña 256 muestras)
+%   Funciones definidas al final de la sección
+DS_sgn_dev_ar = signalDatastore(fullfile(folderPath,"dev","**","*_ar"),"ReadFcn",@readTUHEDF,"FileExtensions",".edf");
+DS_lbl_dev_ar = fileDatastore(fullfile(folderPath,"dev","**","*_ar","*_bi.csv"),"ReadFcn",@read_lbl);
 
 % Datastores de evaluación montaje AR (secuencia más pequeña 4096 muestras)
 %   Funciones definidas al final de la sección
@@ -55,17 +39,20 @@ DS_lbl_eval_ar = fileDatastore(fullfile(folderPath,"eval","**","*_ar","*_bi.csv"
 % Parámetro de longitud que se utiliza para dividir las señales en ventanas
 w_ventana = 60*256; %1 minuto con Fs de 256 Hz
 
-% Procesamiento de señales y etiquetas de entrenamiento, posteriormente se mezclan
+% Se combina, transforma y mezcla datastores de entrenamiento
+%   Función definida al final de la sección
 DS_train_ar = combine(DS_sgn_train_ar, DS_lbl_train_ar);
 DS_train_ar = transform(DS_train_ar,@(data) getlbls(data,w_ventana,3));
 DS_train_ar = shuffle(DS_train_ar);
 
-% Procesamiento de señales y etiquetas de validación, posteriormente se mezclan
+% Se combina, transforma y mezcla datastores de development/validación
+%   Función definida al final de la sección
 DS_dev_ar = combine(DS_sgn_dev_ar, DS_lbl_dev_ar);
 DS_dev_ar = transform(DS_dev_ar,@(data) getlbls(data,w_ventana,3));
 DS_dev_ar = shuffle(DS_dev_ar);
 
-% Procesamiento de señales y etiquetas de evaluación
+% Se combina, transforma y mezcla datastores de evaluación
+%    Función definida al final de la sección
 DS_eval_ar = combine(DS_sgn_eval_ar, DS_lbl_eval_ar);
 DS_eval_ar = transform(DS_eval_ar,@(data) getlbls(data,w_ventana,3));
 % DS_eval_ar = shuffle(DS_eval_ar);
@@ -294,96 +281,60 @@ function edf_set = getlbls(data,ventana,modo)
 
 end
 
-clearvars -except DS_train_ar DS_dev_ar DS_eval_ar w_ventana
+%% Creación de red neuronal TCN
 
-%% Lectura mediante tall arrays y función gather datasets
-tallTrainSet = tall(DS_train_ar);
-tallDevSet = tall(DS_dev_ar);
-tallEvalSet = tall(DS_eval_ar);
+numFeatures = 22;
+numFilters = 64;
+filterSize = 5;
+dropoutFactor = 0.005;
+numBlocks = 4;
 
-trainData = gather(tallTrainSet);
-trainSgns = cellfun(@(x) dlarray(x,'TCB'),trainData(:,1),'UniformOutput',false);
-trainLbls = trainData(:,2);
+net = dlnetwork;
 
-devData = gather(tallDevSet);
-devSgns = cellfun(@(x) dlarray(x,'TCB'),devData(:,1),'UniformOutput',false);
-devLbls = devData(:,2);
+layer = sequenceInputLayer(numFeatures,Normalization="rescale-symmetric",Name="input");
 
-tallData = gather(tallEvalSet);
-evalSgns = tallData(:,1);
-evalLbls = tallData(:,2);
+net = addLayers(net,layer);
 
-clearvars -except trainSgns trainLbls devSgns devLbls evalSgns evalLbls w_ventana
+outputName = layer.Name;
 
-%% Verificación de labels
-etiquetas = trainLbls;
-etiquetas = vertcat(etiquetas{:});
-% stas_etiquetas = countlabels(etiquetas)
-stas_etiquetas1 = groupcounts(etiquetas);
-
-etiquetas = devLbls;
-etiquetas = vertcat(etiquetas{:});
-stas_etiquetas2 = groupcounts(etiquetas);
-
-%% Creación de red neuronal LSTM
-
-LSTM_eegnet = dlnetwork;
-
-layers = [sequenceInputLayer(22)
-          modwtLayer("Wavelet","sym2","Level",3,"IncludeLowpass",false)
-          flattenLayer()
-          lstmLayer(256,'OutputMode','sequence')
-          lstmLayer(128,'OutputMode','sequence')
-          fullyConnectedLayer(2)
-          dropoutLayer(0.1)
-          softmaxLayer];
-
-LSTM_eegnet = addLayers(LSTM_eegnet,layers);
-% cwtLayer("SignalLength",w_ventana,"Wavelet","amor","VoicesPerOctave",12,"TransformMode","squaremag")
-%% Opciones entrenamiento LSTM
-options = trainingOptions("sgdm", ...
-                          Plots = "training-progress", ...
-                          Metrics = "accuracy", ...
-                          Shuffle = "every-epoch", ...
-                          MiniBatchSize = 10, ...  
-                          ValidationData = {devSgns,devLbls}, ...
-                          ValidationFrequency = 10, ...
-                          Verbose = true, ....
-                          MaxEpochs = 80, ... 
-                          InitialLearnRate = 1e-4, ... 
-                          GradientThreshold = 1, ...
-                          OutputNetwork = "last-iteration", ...
-                          ExecutionEnvironment = "auto");  
-
-lossFcn = @(Y,T) crossentropy(Y,T, ...
-                              Weights = [0.1, 0.9], ...
-                              NormalizationFactor = "all-elements", ...
-                              WeightsFormat = "UC");
-
-[LSTM_eegnet, infoLSTM] = trainnet(trainSgns,trainLbls,LSTM_eegnet,lossFcn,options);
-
-% GradientThreshold = 1, ...
-% ObjectiveMetricName = "accuracy", ...
-% Shuffle = "every-epoch", ...
-% ValidationData = {devData(:,1),devData(:,2)}, ...
-% ValidationFrequency = 26, ...
-% InputDataFormats = "TCB", ...
-
-%% Puesta a prueba de red
-validacionComp = false;
-
-if validacionComp
-    yhat = minibatchpredict(LSTM_eegnet,evalSgns,"MiniBatchSize",4,"UniformOutput",false);
-    y = evalLbls;
-else
-    % Metricas
-    statsLSTM_eegnet = testnet(LSTM_eegnet,devSgns,devLbls,{"accuracy",lossFcn},"MiniBatchSize",5);
+for i = 1:numBlocks
+    dilationFactor = 2^(i-1);
     
-    % Realizar predicciones sobre las señales
-    yhat = minibatchpredict(LSTM_eegnet,devSgns,"MiniBatchSize",4,"UniformOutput",false);
-    yhat = cellfun(@(x) reshape(extractdata(x),[],2),yhat,UniformOutput=false);
-    y = devLbls;
+    layers = [
+        convolution1dLayer(filterSize,numFilters,DilationFactor=dilationFactor,Padding="causal",Name="conv1_"+i)
+        layerNormalizationLayer
+        spatialDropoutLayer(Probability=dropoutFactor)
+        convolution1dLayer(filterSize,numFilters,DilationFactor=dilationFactor,Padding="causal")
+        layerNormalizationLayer
+        reluLayer
+        spatialDropoutLayer(Probability=dropoutFactor)
+        additionLayer(2,Name="add_"+i)];
+
+    % Add and connect layers.
+    net = addLayers(net,layers);
+    net = connectLayers(net,outputName,"conv1_"+i);
+
+    % Skip connection.
+    if i == 1
+        % Include convolution in first skip connection.
+        layer = convolution1dLayer(1,numFilters,Name="convSkip");
+
+        net = addLayers(net,layer);
+        net = connectLayers(net,outputName,"convSkip");
+        net = connectLayers(net,"convSkip","add_" + i + "/in2");
+    else
+        net = connectLayers(net,outputName,"add_" + i + "/in2");
+    end
+    
+    % Update layer output name.
+    outputName = "add_" + i;
 end
 
-figure(1)
-plotconfusion(cell2mat(y(:))',cell2mat(yhat(:))');
+layers = [
+    fullyConnectedLayer(numClasses,Name="fc")
+    softmaxLayer];
+
+net = addLayers(net,layers);
+net = connectLayers(net,outputName,"fc");
+
+TCN_eegnet = net;
