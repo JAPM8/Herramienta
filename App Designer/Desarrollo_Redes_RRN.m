@@ -194,7 +194,7 @@ function edf_set = getlbls(data,ventana,modo)
     for lbl_idx = 1:nr
        
         % Se obtiene etiqueta de la fila
-        lbl = lbl_data.label(lbl_idx);
+        lbl = lbls.label(lbl_idx);
         
         % Si la etiqueta es "seiz" -> Convulsión
         if strcmp(lbl,'seiz')

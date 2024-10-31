@@ -2,23 +2,6 @@
 % Funcional 2024A-2024B
 % CORRA ESTE CÓDIGO POR SECCIONES
 
-%% Carga de datos
-
-% Contiene las rutas de acceso para el dataset reducido
-%   Este dataset es equilibrado entre clases para el subconjunto de
-%   entrenamiento, el subconjunto de validación solo cumple con ser de la
-%   misma duración. El subconjunto de evaluación considera todos los casos.
-load MiniCorpusBalanceadoSEIZTUH.mat
-
-% Se obtienen las rutas de los subconjuntos específicos entrenamiento/validación
-%   Note que el .mat contiene las rutas a los archivos EDF por ello se
-%   manipulan para obtener las rutas de las etiquetas
-rutasSgnTrain = set_train.Path;
-rutasLblsTrain = cellfun(@(ruta) strrep(ruta,'.edf','_bi.csv'),rutasSgnTrain,UniformOutput = false);
-
-rutasSgnDev = set_val.Path;
-rutasLblsDev = cellfun(@(ruta) strrep(ruta,'.edf','_bi.csv'),rutasSgnDev,UniformOutput = false);
-
 %% Lectura de datasets con Datastores
 
 % Ruta de acceso a datos CORPUS TUH SEIZURE
@@ -26,38 +9,17 @@ rutasLblsDev = cellfun(@(ruta) strrep(ruta,'.edf','_bi.csv'),rutasSgnDev,Uniform
 folderPath = ['C:\Users\javyp\Documents\UNIVERSIDAD\GraduationGateway' ...
                '\Tesis\Data\Datos_TUH\v2.0.3\edf'];
 
-% Datastores de entrenamiento montaje AR
-%   Funciones definidas al final de la sección
-DS_sgn_train_ar = signalDatastore(rutasSgnTrain,"ReadFcn",@readTUHEDF);
-DS_lbl_train_ar = fileDatastore(rutasLblsTrain,"ReadFcn",@read_lbl);
-
 % Datastores de development/validación montaje AR
 %   Funciones definidas al final de la sección
-DS_sgn_dev_ar = signalDatastore(rutasSgnDev,"ReadFcn",@readTUHEDF);
-DS_lbl_dev_ar = fileDatastore(rutasLblsDev,"ReadFcn",@read_lbl);
-
-% Datastores de evaluación montaje AR (secuencia más pequeña 4096 muestras)
-%   Funciones definidas al final de la sección
-DS_sgn_eval_ar = signalDatastore(fullfile(folderPath,"eval","**","*_ar"),"ReadFcn",@readTUHEDF,"FileExtensions",".edf");
-DS_lbl_eval_ar = fileDatastore(fullfile(folderPath,"eval","**","*_ar","*_bi.csv"),"ReadFcn",@read_lbl);
+ds_sgn = signalDatastore(fullfile(folderPath,"train","**","*_ar"),"ReadFcn",@readTUHEDF,"FileExtensions",".edf");
+ds_lbls = fileDatastore(fullfile(folderPath,"train","**","*_ar","*_bi.csv"),"ReadFcn",@read_lbl);
 
 % Parámetro de longitud que se utiliza para dividir las señales en ventanas
-w_ventana = 60*256; %1 minuto con Fs de 256 Hz
+w_ventana = 20*60*256; %20 minutos con Fs de 256 Hz
 
-% Procesamiento de señales y etiquetas de entrenamiento, posteriormente se mezclan
-DS_train_ar = combine(DS_sgn_train_ar, DS_lbl_train_ar);
-DS_train_ar = transform(DS_train_ar,@(data) getlbls(data,w_ventana,3));
-DS_train_ar = shuffle(DS_train_ar);
-
-% Procesamiento de señales y etiquetas de validación, posteriormente se mezclan
-DS_dev_ar = combine(DS_sgn_dev_ar, DS_lbl_dev_ar);
-DS_dev_ar = transform(DS_dev_ar,@(data) getlbls(data,w_ventana,3));
-DS_dev_ar = shuffle(DS_dev_ar);
-
-% Procesamiento de señales y etiquetas de evaluación
-DS_eval_ar = combine(DS_sgn_eval_ar, DS_lbl_eval_ar);
-DS_eval_ar = transform(DS_eval_ar,@(data) getlbls(data,w_ventana,3));
-% DS_eval_ar = shuffle(DS_eval_ar);
+ds_train = combine(ds_sgn, ds_lbls);
+ds_train = transform(ds_train,@(data) getlbls(data,w_ventana,3));
+ds_train = shuffle(ds_train);
 
 % Funciones de lectura de datastores
 function edf_val = readTUHEDF(filename)
@@ -70,7 +32,7 @@ function edf_val = readTUHEDF(filename)
                  "EEG O1-REF","EEG O2-REF","EEG F7-REF","EEG F8-REF",...
                  "EEG T3-REF","EEG T4-REF","EEG T5-REF","EEG T6-REF",...
                  "EEG CZ-REF","EEG A1-REF","EEG A2-REF"]';
-    
+
     % Se obtiene header del EEG, este contiene la información de registro 
     edf_hdr = edfinfo(filename);
 
@@ -86,7 +48,7 @@ function edf_val = readTUHEDF(filename)
     edf_samples = (edf_hdr.NumDataRecords*max(edf_hdr.NumSamples));
 
     clear edf_hdr chnl_list % Limpieza de variables ya no útiles
-    
+
     % Se obtiene montaje tipo AR, es decir, se restan los canales como indica
     % comentario al lado de cada fila
     edf_montage = [edf_data(:,1) - edf_data(:,11),...   % FP1-F7
@@ -114,10 +76,11 @@ function edf_val = readTUHEDF(filename)
     
     clear edf_data % Limpieza de variables ya no útiles
     
-    % Se trabaja resampling a 256 Hz porque es la Fs dominante en el dataset
-    if edf_Fs ~= 256
+    des_Fs = 256;
+    % Se trabaja resampling a des_Fs Hz
+    if edf_Fs ~= des_Fs
         % Se obtiene fracción que permite la conversión entre Fs
-        [P,Q] = rat(256/edf_Fs);
+        [P,Q] = rat(des_Fs/edf_Fs);
 
         % Se aplica resampling al EEG
         %  Verifique documentación de la función pues aplica filtro
@@ -125,10 +88,10 @@ function edf_val = readTUHEDF(filename)
         edf_montage = resample(edf_montage,P,Q);
 
         % Se actualizan variables del estudio
-        edf_Fs = 256;
+        edf_Fs = des_Fs;
         edf_samples = size(edf_montage,1);
     end
-    
+
     % Se retornan valores de la función como cell
     edf_val = {edf_montage,edf_Fs,edf_samples};
 end
@@ -139,7 +102,7 @@ function tbl_lbl = read_lbl(filename)
    % Detectar las opciones de importación, saltando las primeras 5 líneas y
    % usando las comas "," de separador de columna
     opts = detectImportOptions(filename,"Delimiter",",","NumHeaderLines", 5);
-    
+
     % Seleccionar solo las columnas 2 a la 4
     %   Estas contienen tiempo inicio, tiempo fin y etiqueta respectivamente
     opts.SelectedVariableNames = opts.VariableNames(2:4);
@@ -166,25 +129,27 @@ function edf_set = getlbls(data,ventana,modo)
     sizeSet = data{1,3};
     lbls = data{1,4};
     largo = ventana;
-    
+
     % Se centran las señales en cero
     %   Se obtiene la media por cada canal (columna) y se le resta a c/u
-    edf_montage = edf_montage - mean(edf_montage,2);
+    desvesta = std(edf_montage,0,2);
+    desvesta(desvesta == 0) = 1;
+    edf_montage = normalize(edf_montage,2,"center","mean")./desvesta;
 
     % Se obtiene máximo y mínimo global de las señales
     Max = max(edf_montage,[],"all");
     Min = min(edf_montage,[],"all");
-    
+
     % Se genera vector para etiquetas
     etiquetas = strings(sizeSet, 1);
-    
+
     % ciclo que recorre todas las filas de la tabla de etiquetas
     nr = height(lbls);
     for lbl_idx = 1:nr
-       
+
         % Se obtiene etiqueta de la fila
-        lbl = lbl_data.label(lbl_idx);
-        
+        lbl = lbls.label(lbl_idx);
+
         % Si la etiqueta es "seiz" -> Convulsión
         if strcmp(lbl,'seiz')
 
@@ -196,7 +161,7 @@ function edf_set = getlbls(data,ventana,modo)
 
             % Convertir tiempo de inicio a índice del array
             strt_idx = ceil(strt_lbl * Fs) + 1;
-            
+
             % Convertir tiempo de fin a índice del array
             %   Note que la función "min" garantiza que no se supere la
             %   cantidad de muestras del EEG con la operación
@@ -206,23 +171,23 @@ function edf_set = getlbls(data,ventana,modo)
             etiquetas(strt_idx:stop_idx,1) = "seiz";
         end
     end
-    
+
     % Muestras sin etiquetas se asignan a la etiqueta no convulsión "bckg"
     etiquetas(etiquetas == "") = "bckg";
 
     % Etiquetas se codifican en formato one-hot
     %   Esto se realiza para tener una representación simple 
     etiquetas = onehotencode(etiquetas,2,"ClassNames",["bckg" "seiz"]);
-    
+
     if (sizeSet >= largo) && (modo == 1)
 
         % Cantidad de ventanas posibles de ancho = largo
         numChunks = floor(sizeSet/largo);
-        
+
         % Se limitan las señales y etiquetas a la cantidad de ventanas posibles
         edf_montage = edf_montage(1:(numChunks*largo),:);
         etiquetas = etiquetas(1:(numChunks*largo),:);
-        
+
         % Se corta las señales y etiquetas en las ventanas posibles
         %   Note que repmat da la distribución de filas (largo de ventana)
         edf_montage = mat2cell(edf_montage,repmat(largo,1,numChunks));
@@ -244,23 +209,23 @@ function edf_set = getlbls(data,ventana,modo)
 
             % Índice inicial de ventana a partir de lím. superior
             rng = l_sup - largo;
-            
+
             % Si la primer etiqueta de "seiz" está antes que índice inicial
             if l_inf < rng
-                
+
                 % Se obtiene índice inicial aleatorio entre primer etiqueta
                 % y el índice inicial obtenido anteriormente
                 i_indx = randi([l_inf, rng],1);
-            
+
             else
-                
+
                 % Índice inicial máximo entre primer muestra e índice inicial obtenido anteriormente
                 i_indx = max(rng,1);
 
             end
 
         end
-        
+
         % Índice final a partir del inicial más el largo de ventana
         e_indx = i_indx + largo - 1;
 
@@ -274,49 +239,77 @@ function edf_set = getlbls(data,ventana,modo)
         etiquetas = {etiquetas};
 
     end  
-    
+
     % Reescalamiento de cada canal de la señal en el rango de [-1 1] con mínimo y máximo global
     edf_montage = cellfun(@(x) rescale(x,-1,1,"InputMin",Min,"InputMax",Max),edf_montage,'UniformOutput',false);
-    
+
     % Se devuelven señales y etiquetas procesadas
     edf_set = [edf_montage,etiquetas];
 
 end
 
-clearvars -except DS_train_ar DS_dev_ar DS_eval_ar w_ventana
+clearvars -except ds_train w_ventana
 
-%% Lectura mediante tall arrays y función gather datasets
-tallTrainSet = tall(DS_train_ar);
-tallDevSet = tall(DS_dev_ar);
-tallEvalSet = tall(DS_eval_ar);
+%% Lectura en memoria
 
-trainData = gather(tallTrainSet);
-trainSgns = cellfun(@(x) dlarray(x,'TCB'),trainData(:,1),'UniformOutput',false);
-trainLbls = trainData(:,2);
+sgns = cell(100,1);
+lbls = cell(100,1);
+i = 0;
 
-devData = gather(tallDevSet);
-devSgns = cellfun(@(x) dlarray(x,'TCB'),devData(:,1),'UniformOutput',false);
-devLbls = devData(:,2);
+while hasdata(ds_train) && (i <= 100)
+    set = read(ds_train);
+    setS = set{1,1};
+    setL = set{1,2};
 
-tallData = gather(tallEvalSet);
-evalSgns = tallData(:,1);
-evalLbls = tallData(:,2);
+    samples = length(setS);
+    seizSamples = sum(setL(:,2));
 
-clearvars -except trainSgns trainLbls devSgns devLbls evalSgns evalLbls
+    if (samples <= w_ventana) && (seizSamples >= 0.3*samples) && (seizSamples <= 0.8*samples)
+        sgns{i+1} = setS;
+        lbls{i+1} = setL;
+        i = i + 1;
+        disp(i);
+    end
+end
+
+sgns(any(cellfun(@isempty, sgns), 2), :) = [];
+lbls(any(cellfun(@isempty, lbls), 2), :) = [];
+
+%% Separando en subsets
+
+load("MiniCorpusSEIZ3080P_menos20mins_zscore_TUH.mat");
+
+[trainInd,valInd,testInd] = dividerand(length(lbls),0.7,0.2,0.1);
+
+trainSgns = sgns(trainInd);
+trainSgns = cellfun(@(x) dlarray(x,'TCB'),trainSgns,'UniformOutput',false);
+trainLbls = lbls(trainInd);
+
+lbls_j = cell2mat(trainLbls(:));
+weights = length(lbls_j)./(2*sum(lbls_j));
+
+valSgns = sgns(valInd);
+valSgns = cellfun(@(x) dlarray(x,'TCB'),valSgns,'UniformOutput',false);
+valLbls = lbls(valInd);
+
+evalSgns = sgns(testInd);
+evalSgns = cellfun(@(x) dlarray(x,'TCB'),evalSgns,'UniformOutput',false);
+evalLbls = lbls(testInd);
+
+clearvars -except trainSgns trainLbls valSgns valLbls evalSgns evalLbls weights
 
 %% Creación de red neuronal TCN
-
 numFeatures = 22;
 numClasses = 2;
 
-numFilters = 64;
-filterSize = 5;
-dropoutFactor = 0.005;
-numBlocks = 6;
+numFilters = 100;
+filterSize = 10;
+dropoutFactor = 0.15;
+numBlocks = 16;
 
 net = dlnetwork;
 
-layer = sequenceInputLayer(numFeatures,Normalization="rescale-symmetric",Name="input");
+layer = sequenceInputLayer(numFeatures,Name="input");
 
 net = addLayers(net,layer);
 
@@ -326,10 +319,10 @@ for i = 1:numBlocks
     dilationFactor = 2^(i-1);
     
     layers = [
-        convolution1dLayer(filterSize,numFilters,DilationFactor=dilationFactor,Padding="causal",Name="conv1_"+i)
+        convolution1dLayer(filterSize,numFilters,DilationFactor=dilationFactor,Padding="causal",Name="conv1_"+i,WeightsInitializer="he")
         layerNormalizationLayer
         spatialDropoutLayer(Probability=dropoutFactor)
-        convolution1dLayer(filterSize,numFilters,DilationFactor=dilationFactor,Padding="causal")
+        convolution1dLayer(filterSize,numFilters,DilationFactor=dilationFactor,Padding="causal",WeightsInitializer="he")
         layerNormalizationLayer
         reluLayer
         spatialDropoutLayer(Probability=dropoutFactor)
@@ -342,7 +335,7 @@ for i = 1:numBlocks
     % Skip connection.
     if i == 1
         % Include convolution in first skip connection.
-        layer = convolution1dLayer(1,numFilters,Name="convSkip");
+        layer = convolution1dLayer(1,numFilters,Name="convSkip",WeightsInitializer="he");
 
         net = addLayers(net,layer);
         net = connectLayers(net,outputName,"convSkip");
@@ -356,10 +349,96 @@ for i = 1:numBlocks
 end
 
 layers = [
-    fullyConnectedLayer(numClasses,Name="fc")
+    fullyConnectedLayer(numClasses,Name="fc",WeightsInitializer="he")
     softmaxLayer];
 
 net = addLayers(net,layers);
 net = connectLayers(net,outputName,"fc");
 
 TCN_eegnet = net;
+
+clearvars -except trainSgns trainLbls valSgns valLbls evalSgns evalLbls TCN_eegnet weights
+% selfAttentionLayer(8,256,"AttentionMask","causal",Name="sa")
+%% Opciones entrenamiento TCN_eegnet
+options = trainingOptions("sgdm", ...
+                          Plots = "training-progress", ...
+                          Metrics = "accuracy", ...
+                          MiniBatchSize = 1, ...  
+                          ValidationData = {valSgns,valLbls}, ...
+                          Shuffle = "every-epoch", ...
+                          ValidationFrequency = 2, ...
+                          Verbose = true, ...
+                          MaxEpochs = 10, ... 
+                          InitialLearnRate = 1e-4, ... 
+                          OutputNetwork = "last-iteration", ...
+                          ExecutionEnvironment = "gpu");  
+
+lossFcn = @(Y,T) crossentropy(Y,T, ...
+                              Weights = weights, ...
+                              NormalizationFactor = "all-elements", ...
+                              WeightsFormat = "UC");
+
+[TCN_eegnet, infoTCN] = trainnet(trainSgns,trainLbls,TCN_eegnet,lossFcn,options);
+
+%                         
+
+%% Puesta a prueba de red
+sgnsEval = evalSgns; %valSgns; %
+lblsEval = evalLbls; %valLbls; %
+
+% Metricas
+statsTCN_eegnet = testnet(TCN_eegnet,sgnsEval,lblsEval,{"accuracy","crossentropy"},"MiniBatchSize",1);
+
+% Realizar predicciones sobre las señales
+yhat = minibatchpredict(TCN_eegnet,sgnsEval,"MiniBatchSize",1,"UniformOutput",false);
+yhat = cellfun(@(x) scores2label(reshape(extractdata(x),[],2),["bckg","seiz"],2),yhat,UniformOutput=false);
+y = lblsEval;
+y = cellfun(@(x) onehotdecode(x,["bckg","seiz"],2),y,UniformOutput=false);
+
+f = figure(1);
+cm = confusionchart(f,vertcat(y{:}),vertcat(yhat{:}),"Normalization","column-normalized");
+cm.XLabel = 'Clase predicha';
+cm.YLabel = 'Clase real';
+
+%% MISC
+
+% ind = randperm(numel(ds_sgn.Files),10);
+% trainInd = ind(1:7);
+% valInd = ind(8:9);
+% testInd = ind(end);
+% 
+% ds_sgn_train = subset(ds_sgn,trainInd);
+% ds_lbls_train = subset(ds_lbls,trainInd);
+% 
+% ds_sgn_val = subset(ds_sgn,valInd);
+% ds_lbls_val = subset(ds_lbls,valInd);
+% 
+% ds_sgn_test = subset(ds_sgn,testInd);
+% ds_lbls_test = subset(ds_lbls,testInd);
+
+% dtrain = readall(ds_train);
+% dval = readall(ds_val);
+% dtest = readall(ds_test);
+% 
+% trainSgns = cellfun(@(x) dlarray(x,'TCB'),dtrain(:,1),'UniformOutput',false);
+% trainLbls = dtrain(:,2);
+% 
+% valSgns = cellfun(@(x) dlarray(x,'TCB'),dval(:,1),'UniformOutput',false);
+% valLbls = dval(:,2);
+% 
+% evalSgns = cellfun(@(x) dlarray(x,'TCB'),dtest(:,1),'UniformOutput',false);
+% evalLbls = dtest(:,2);
+% 
+% clearvars -except trainSgns trainLbls valSgns valLbls evalSgns evalLbls
+
+load("MiniCorpusSEIZ3080P_menos20mins_TUH.mat");
+sgns_j = cell2mat(sgns(:));
+lbls_j = cell2mat(lbls(:));
+lbls_j = onehotdecode(lbls_j,{'bckg','seiz'},2);
+
+
+for i = 1:22
+    figure(i)
+    plotsigroi(signalMask(lbls_j),sgns_j(:,i))
+    title(['Canal ', num2str(i)]);    
+end
