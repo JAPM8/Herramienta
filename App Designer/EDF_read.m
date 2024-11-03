@@ -1,3 +1,7 @@
+%% Atención: Utilizar la función openedf, MATLAB no recomienda seguir utilizando esta función.
+%   https://www.mathworks.com/matlabcentral/fileexchange/31900-edfread
+%   Javier Pérez - 2024
+
 function [hdr, record] = EDF_read(fname, varargin)
 % Read European Data Format file into MATLAB
 %
