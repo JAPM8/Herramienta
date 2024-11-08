@@ -1,4 +1,9 @@
 ## Descarga de  MySQL
+
+<p><strong>Realizado por:</strong> <a href="https://github.com/Men19673" target="_blank">
+  <img src="https://img.shields.io/badge/Men19673-a?style=social&logo=github" alt="Men19673"/>
+</a></p> 
+
 1. Ingresar a <https://www.mysql.com/>
 2. Ingresar a Downloads\
 ![mysql downloads](ingresardownloads.png "Downloads")
@@ -12,7 +17,3 @@
 ![mysql account downloads](downloads5.png "account Downloads")
 7. Descargar el instalador.\
 ![mysql final downloads](downloads6.png "final Downloads")
-
-<p><strong>Realizado por:</strong> <a href="https://github.com/Men19673" target="_blank">
-  <img src="https://img.shields.io/badge/Men19673-a?style=social&logo=github" alt="Men19673"/>
-</a></p> 
