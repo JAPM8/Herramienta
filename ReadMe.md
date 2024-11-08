@@ -15,7 +15,7 @@
 <p align="center"><strong>Departamento de Ingeniería Electrónica, Mecatrónica y Biomédica</strong></p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/ESTADO-EN_DESARROLLO-green" alt="Fase en desarrollo"/>
+  <img src="https://img.shields.io/badge/STATUS-EN_DESARROLLO-green" alt="Fase en desarrollo"/>
   <img src="https://img.shields.io/github/contributors/japm8/Herramienta" alt="GitHub contributors"/>
   <img src="https://img.shields.io/github/languages/top/japm8/Herramienta" alt="GitHub top language" >
  </p>
