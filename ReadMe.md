@@ -39,9 +39,8 @@ Este trabajo se presenta como la quinta fase de esta línea de investigación, c
 
 <p align="center"><i>Fuente: <a href="https://i.gifer.com/3YB1.gif" target="_blank">Gifer</a>, <a href="https://i.gifer.com/9P8h.gif" target="_blank">Gifer</a> y <a href="https://i.gifer.com/origin/bb/bb3c10a9aebc133d55b8ae9d76abe825.gif" target="_blank">Gifer</a></i></p>
 
-## Enfoque aprendizaje supervisado
-**Por:** ![JAPM8](https://img.shields.io/badge/JAPM8-a?style=social&logo=github&link=https%3A%2F%2Fgithub.com%2FJAPM8)
-
+# Enfoque aprendizaje supervisado
+**Por:** [![JAPM8](https://img.shields.io/badge/JAPM8-a?style=social&logo=github&link=https%3A%2F%2Fgithub.com%2FJAPM8)](https://github.com/JAPM8)
 
 ## Enfoque aprendizaje no supervisado
-**Por:** ![DAIMUVG](https://img.shields.io/badge/DAIMUVG-a?style=social&logo=github&link=https%3A%2F%2Fgithub.com%2FDAIMUVG)
+**Por:** [![DAIMUVG](https://img.shields.io/badge/DAIMUVG-a?style=social&logo=github&link=https%3A%2F%2Fgithub.com%2FDAIMUVG)](https://github.com/DAIMUVG)
