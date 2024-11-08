@@ -26,7 +26,7 @@ Este trabajo de graduación tuvo como objetivo principal desarrollar algoritmos 
 
 La epilepsia es un trastorno neurológico que afecta a millones de personas en el mundo, esta se caracteriza por episodios de actividad eléctrica anormal en el cerebro que se manifiestan como crisis epilépticas. Debido a que el análisis de EEGs es un proceso riguroso y manual, esta investigación buscó optimizar este proceso mediante una herramienta automatizada para la detección de patrones asociados a episodios epilépticos.
 
-Este trabajo se presenta como la quinta fase de esta línea de investigación, cuyo desarrollo incluye la actualización y optimización de la herramienta *Epileptic EEG Analysis Toolbox*. A la vez que, se exploraron los enfoques de aprendizaje supervisado y no supervisado.
+Este trabajo se presenta como la quinta fase de esta línea de investigación, cuyo desarrollo incluye la actualización y optimización de la herramienta *Epileptic EEG Analysis Toolbox*. A la vez que, se exploraron los enfoques de [aprendizaje supervisado](#Enfoque-aprendizaje-supervisado) y [no supervisado](#Enfoque-aprendizaje-no-supervisado).
 
 <br>
 
