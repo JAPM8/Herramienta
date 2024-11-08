@@ -43,6 +43,18 @@ Este trabajo se presenta como la quinta fase de esta línea de investigación, c
   <img src="https://img.shields.io/badge/JAPM8-a?style=social&logo=github" alt="JAPM8"/>
 </a></p>
 
+En este enfoque se exploraron...
+
+<p align="center">
+  <img src="https://miro.medium.com/max/3840/1*v0ng9VkbuTu6ey9v8S3VDw.gif" alt="Ejemplo Red Neuronal Profunda" width="60%"/>
+</p>
+
+<p align="center"><i>Fuente: <a href="https://medium.com/analytics-vidhya/what-are-convolution-neural-networks-10-points-9d6d24086098" target="_blank">Sarkar, Ayantika </a></i></p>
+
+### No olvides revisar :nerd_face: :
+- [Extracción Data Base de Datos TUH](App-Designer/Prototipo_Data_TUH.m): Este archivo contiene...
+
+
 <h2>Enfoque aprendizaje no supervisado</h2>
 <p><strong>Por:</strong> <a href="https://github.com/DAIMUVG" target="_blank">
   <img src="https://img.shields.io/badge/DAIMUVG-a?style=social&logo=github" alt="DAIMUVG"/>
