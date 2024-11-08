@@ -15,10 +15,9 @@
 <p align="center"><strong>Departamento de Ingeniería Electrónica, Mecatrónica y Biomédica</strong></p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/ESTADO-EN_DESARROLLO-green" alt="Badge_Desarrollo"/>
+  <img src="https://img.shields.io/badge/ESTADO-EN_DESARROLLO-green" alt="Fase en desarrollo"/>
   <img src="https://img.shields.io/github/contributors/japm8/Herramienta" alt="GitHub contributors"/>
-  <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/japm8/Herramienta">
-
+  <img src="https://img.shields.io/github/languages/top/japm8/Herramienta" alt="GitHub top language" >
  </p>
 
 ## **Descripción**
@@ -39,8 +38,12 @@ Este trabajo se presenta como la quinta fase de esta línea de investigación, c
 
 <p align="center"><i>Fuente: <a href="https://i.gifer.com/3YB1.gif" target="_blank">Gifer</a>, <a href="https://i.gifer.com/9P8h.gif" target="_blank">Gifer</a> y <a href="https://i.gifer.com/origin/bb/bb3c10a9aebc133d55b8ae9d76abe825.gif" target="_blank">Gifer</a></i></p>
 
-# Enfoque aprendizaje supervisado
-**Por:** [![JAPM8](https://img.shields.io/badge/JAPM8-a?style=social&logo=github&link=https%3A%2F%2Fgithub.com%2FJAPM8)](https://github.com/JAPM8)
+<h2>Enfoque aprendizaje supervisado</h2>
+<p><strong>Por:</strong> <a href="https://github.com/JAPM8" target="_blank">
+  <img src="https://img.shields.io/badge/JAPM8-a?style=social&logo=github" alt="JAPM8"/>
+</a></p>
 
-## Enfoque aprendizaje no supervisado
-**Por:** [![DAIMUVG](https://img.shields.io/badge/DAIMUVG-a?style=social&logo=github&link=https%3A%2F%2Fgithub.com%2FDAIMUVG)](https://github.com/DAIMUVG)
+<h2>Enfoque aprendizaje no supervisado</h2>
+<p><strong>Por:</strong> <a href="https://github.com/DAIMUVG" target="_blank">
+  <img src="https://img.shields.io/badge/DAIMUVG-a?style=social&logo=github" alt="DAIMUVG"/>
+</a></p>
