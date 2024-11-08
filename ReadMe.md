@@ -35,7 +35,7 @@ Este trabajo se presenta como la quinta fase de esta línea de investigación, c
   <img src="https://i.gifer.com/origin/bb/bb3c10a9aebc133d55b8ae9d76abe825.gif" alt="Fase 3 - EEG" width="30%"/>
 </p>
 
-<p align="center"><i>Fuente: <a href="https://media.giphy.com/media/WwDOdoeXruPGE/giphy.gif" target="_blank">Giphy</a>, <a href="https://media.giphy.com/media/J7NAxMWW5Q6cg/giphy.gif" target="_blank">Giphy</a> y <a href="https://i.gifer.com/origin/bb/bb3c10a9aebc133d55b8ae9d76abe825.gif" target="_blank">Gifer</a></i></p>
+<p align="center"><i>Fuente: <a href="https://media.giphy.com/media/WwDOdoeXruPGE/giphy" target="_blank">Giphy</a>, <a href="https://media.giphy.com/media/J7NAxMWW5Q6cg/giphy" target="_blank">Giphy</a> y <a href="https://i.gifer.com/origin/bb/bb3c10a9aebc133d55b8ae9d76abe825" target="_blank">Gifer</a></i></p>
 
 ## Enfoque aprendizaje supervisado
 
