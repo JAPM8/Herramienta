@@ -37,6 +37,4 @@ Este trabajo se presenta como la quinta fase de esta línea de investigación, c
 
 ## Enfoque aprendizaje supervisado
 
-
-
 ## Enfoque aprendizaje no supervisado
