@@ -1,7 +1,7 @@
 ## Descarga de  MySQL
 1. Ingresar a <https://www.mysql.com/>
 2. Ingresar a Downloads\
-![mysql downloads](descarga_mysql/ingresardownloads.png "Downloads")
+![mysql downloads](descarga_mysql/ingresardownloads.png)
 3. Ingresar a "MySQL Community (GPL) Downloads"\
 ![mysql community downloads](descarga_mysql/downloads2.png "Community Downloads")
 4. Ingresar a "MySQL Installer for Windows"\
