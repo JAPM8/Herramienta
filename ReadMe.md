@@ -16,8 +16,10 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/ESTADO-EN_DESARROLLO-green" alt="Badge_Desarrollo"/>
-  <img src="https://img.shields.io/github/watchers/JAPM8/Herramienta" alt="GitHub watchers"/>
-</p>
+  <img src="https://img.shields.io/github/contributors/japm8/Herramienta" alt="GitHub contributors"/>
+  <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/japm8/Herramienta">
+
+ </p>
 
 ## **Descripción**
 
