@@ -318,7 +318,6 @@ clearvars -except trainSgns trainLbls devSgns devLbls evalSgns evalLbls w_ventan
 %% Verificación de labels
 etiquetas = trainLbls;
 etiquetas = vertcat(etiquetas{:});
-% stas_etiquetas = countlabels(etiquetas)
 stas_etiquetas1 = groupcounts(etiquetas);
 
 etiquetas = devLbls;
