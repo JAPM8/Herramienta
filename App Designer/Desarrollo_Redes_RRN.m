@@ -324,6 +324,33 @@ etiquetas = devLbls;
 etiquetas = vertcat(etiquetas{:});
 stas_etiquetas2 = groupcounts(etiquetas);
 
+%% Creación de red neuronal BILSTM
+% BILSTM_eegnet = dlnetwork;
+% 
+% layers = [sequenceInputLayer(22,"Normalization","zscore","NormalizationDimension","channel")
+%           bilstmLayer(200,'OutputMode','sequence')
+%           dropoutLayer(0.2)
+%           bilstmLayer(150,'OutputMode','sequence')
+%           dropoutLayer(0.2)
+%           fullyConnectedLayer(2)
+%           softmaxLayer];
+% 
+% BILSTM_eegnet = addLayers(BILSTM_eegnet,layers);
+
+%% Creación de red neuronal LSTM
+
+% LSTM_eegnet = dlnetwork;
+% 
+% layers = [sequenceInputLayer(22)
+%           lstmLayer(100,'OutputMode','sequence')
+%           dropoutLayer(0.2)
+%           lstmLayer(75,'OutputMode','sequence')
+%           dropoutLayer(0.2)
+%           fullyConnectedLayer(2)
+%           softmaxLayer];
+% 
+% LSTM_eegnet = addLayers(LSTM_eegnet,layers);
+% LSTM_eegnet = initialize(LSTM_eegnet);
 %% Creación de red neuronal LSTM
 
 LSTM_eegnet = dlnetwork;
