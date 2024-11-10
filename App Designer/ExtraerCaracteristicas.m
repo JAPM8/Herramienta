@@ -35,11 +35,20 @@ function features = ExtraerCaracteristicas(EEGData, Fs, window_size)
             % Calcular características estadísticas
             std_features(ch, w) = std(window_data);
             mav_features(ch, w) = mean(abs(window_data));
-            zc_features(ch, w) = ZC(window_data, 0);  % Función de cruces por cero
+            
+            % Verificar que ZC devuelva un escalar
+            zc_value = ZC(window_data, 0);  % Llamar a la función de cruces por cero
+            if isscalar(zc_value)
+                zc_features(ch, w) = zc_value;
+            else
+                zc_features(ch, w) = NaN;  % Marcar como NaN si no es escalar
+                warning('ZC no devolvió un escalar. Se asignará NaN.');
+            end
+            
             kurtosis_features(ch, w) = kurtosis(window_data);
 
             % Calcular PSD y ratios de bandas de frecuencia
-            [pxx, f] = pwelch(window_data, [], [], [], Fs);  % Cambiado Fs en vez de fs_sano
+            [pxx, f] = pwelch(window_data, [], [], [], Fs);
             
             % Calcular potencia en bandas y sus ratios
             delta_power = bandpower(pxx, f, [0.5 4], 'psd');
