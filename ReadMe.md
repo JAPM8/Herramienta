@@ -70,7 +70,7 @@ una base sólida para continuar reforzando los modelos de clasificación de even
 a lo largo de las últimas cinco fases.
 - [¿Qué necesito para hacer funcionar la herramienta?](App%20Designer#readme): Aquí se detallan todas las dependencias, productos y *Add-Ons* necesarios.
 
-:mailbox_with_mail:**Dudas, comentarios o sugerencias:**[per20183@uvg.edu.gt](mailto:per20183@uvg.edu.gt)
+:mailbox_with_mail:**Dudas, comentarios o sugerencias:** [per20183@uvg.edu.gt](mailto:per20183@uvg.edu.gt)
 
 <h2>Enfoque aprendizaje no supervisado</h2>
 <p><strong>Por:</strong> <a href="https://github.com/DAIMUVG" target="_blank">
