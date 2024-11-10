@@ -6,7 +6,7 @@
 
 <h2 style="margin-left:20px;margin-right:20px;margin-top:20px;margin-bottom:20px;"><span>Productos de MATLAB</span></h2><ul style="margin-left:20px;margin-right:20px;margin-top:20px;margin-bottom:20px;">
 
-<li><span>MATLAB.</span><li><span>Bioinformatics Toolbox.</span></li><li><span>Database Toolbox.</span></li><li><span>Deep Learning Toolbox.</span></li><li><span>Fuzzy Logic Toolbox.</span></li></li><li><span>Parallel Computing Toolbox</span></li><li><span>Signal Processing Toolbox.</span></li><li><span>Statistics and Machine Learning Toolbox.</span></li><li><span>Wavelet Toolbox.</span></li></ul>
+<li><span>MATLAB.</span><li><span>Bioinformatics Toolbox.</span></li><li><span>Database Toolbox.</span></li><li><span>Deep Learning Toolbox.</span></li><li><span>Fuzzy Logic Toolbox.</span></li></li><li><span>Parallel Computing Toolbox.</span></li><li><span>Signal Processing Toolbox.</span></li><li><span>Statistics and Machine Learning Toolbox.</span></li><li><span>Wavelet Toolbox.</span></li></ul>
 
 <h2 style="margin-left:20px;margin-right:20px;margin-top:20px;margin-bottom:20px;"><span>Add-Ons</span></h2>
 <ul style="margin-left:20px;margin-right:20px;margin-top:20px;margin-bottom:20px;"><li><span>Widgets Toolbox - MATLAB App Designer Components 2.3.1.</span></li></ul>
