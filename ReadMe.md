@@ -64,7 +64,7 @@ una base sólida para continuar reforzando los modelos de clasificación de even
 - [Extracción Señales Base de Datos TUH](App%20Designer/Prototipo_Data_TUH.m): Este contiene distintos métodos para una lectura eficiente de estudios del corpus SEIZ de base de datos de TUH.
 - [Estadísticas Base de Datos TUH](App%20Designer/Stats_DataTUHSEIZ.m): Este permite la extracción de estadísticas para el corpus SEIZ de la base de datos de TUH.
 - [Redes RNN](App%20Designer/Desarrollo_Redes_RNN.m): Este contiene las variantes de RNN trabajadas y su implementación en `MATLAB`.
-- [Redes CNN](App%20Designer/Desarrollo_Redes_CNN.m): Este contiene las variantes de CNN trabajadas y su implementación en `MATLAB`.
+- [Redes CNN](App%20Designer/Desarrollo_Redes_RRN.m): Este contiene las variantes de CNN trabajadas y su implementación en `MATLAB`.
 - [Función de lectura openedf](App%20Designer/openedf.m): Esta permite la lectura de archivos `.edf` dándoles formato para ser analizados con la herramienta *Epileptic EEG Analysis Toolbox*.
 - [Epileptic EEG Analysis Toolbox](App%20Designer): Este carpeta contiene los archivos necesarios para la herramienta diseñada
 a lo largo de las últimas cinco fases.
