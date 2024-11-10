@@ -40,4 +40,4 @@
 
 <h2 style="margin-left:20px;margin-right:20px;margin-top:20px;margin-bottom:20px;"><span>Gráfico de Dependencias</span></h2>
 
-![Dependency Graph](App%20Designer/Dependency_Graph9-11-24.bmp)
+![Dependency Graph](Dependency_Graph9-11-24.bmp)
