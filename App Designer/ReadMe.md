@@ -39,3 +39,5 @@
 <tr><td style="background-color:#000000;border-color:#ffffff;border-style:solid;border-width:1px;color:#ffffff;font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;text-align:left;vertical-align:middle;word-break:normal">ZC.m</td><td style="background-color:#000000;border-color:#ffffff;border-style:solid;border-width:1px;color:#ffffff;font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;text-align:left;vertical-align:middle;word-break:normal">clasificadorRN.mlapp</td></tr></tbody></table></div>
 
 <h2 style="margin-left:20px;margin-right:20px;margin-top:20px;margin-bottom:20px;"><span>Gráfico de Dependencias</span></h2>
+
+![Dependency Graph](App%20Designer/Dependency_Graph9-11-24.bmp)
