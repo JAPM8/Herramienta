@@ -43,9 +43,11 @@ Este trabajo se presenta como la quinta fase de esta línea de investigación, c
   <img src="https://img.shields.io/badge/JAPM8-a?style=social&logo=github" alt="JAPM8"/>
 </a></p>
 
-En este enfoque se exploraron e implementaron las redes neuronales profundas en el contexto del análisis de las señales EEG. Para lo cual, se abordó inicialmente una estructura de red neuronal recurrente 
-
-
+En este enfoque se exploraron e implementaron las redes neuronales profundas en 
+el contexto del análisis de las señales EEG. Para lo cual, se abordó inicialmente 
+una estructura de red neuronal recurrente de tipo *[LSTM](https://colah.github.io/posts/2015-08-Understanding-LSTMs/)* 
+y posteriormente se trabajó con una red neuronal convolucional de tipo *[TCN](https://dida.do/blog/temporal-convolutional-networks-for-sequence-modeling)*, 
+para las cuales se trabajaron distintas combinaciones de capas evaluando su rendimiento en la categorización de segmentos de interés en EEG.
 
 <p align="center">
   <img src="https://miro.medium.com/max/3840/1*v0ng9VkbuTu6ey9v8S3VDw.gif" alt="Ejemplo Red Neuronal Profunda" width="60%"/>
@@ -53,8 +55,15 @@ En este enfoque se exploraron e implementaron las redes neuronales profundas en 
 
 <p align="center"><i>Fuente: <a href="https://medium.com/analytics-vidhya/what-are-convolution-neural-networks-10-points-9d6d24086098" target="_blank">Sarkar, Ayantika </a></i></p>
 
+Uno de los principales desafíos para la implementación de estas estructuras de red era la disponibilidad de datos. 
+Por ello, se gestionó el acceso a la base de datos del *[Temple University Hospital (TUH)](https://isip.piconepress.com/projects/nedc/html/tuh_eeg/)*, 
+uno de los repositorios de EEGs más grandes disponibles públicamente. Esta fuente de datos fue clave para el desarrollo de esta quinta fase y establece 
+una base sólida para continuar reforzando los modelos de clasificación de eventos epilépticos, además de abrir la puerta a nuevas exploraciones de algoritmos de aprendizaje de máquina.
+
+
 ### No olvides revisar :nerd_face: :
-- [Extracción Data Base de Datos TUH](App%20Designer/Prototipo_Data_TUH.m): Este archivo contiene...
+- [Extracción Data Base de Datos TUH](App%20Designer/Prototipo_Data_TUH.m): Este contiene distintos métodos para una lectura eficiente de estudios de la base de datos de TUH.
+- 
 
 
 <h2>Enfoque aprendizaje no supervisado</h2>
