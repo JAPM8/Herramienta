@@ -1,8 +1,12 @@
 <!-- Código generado automáticamente con ayuda de Dependency Analyzer de MATLAB -->
 
+<a href="https://github.com/JAPM8" target="_blank">
+  <img src="https://img.shields.io/badge/JAPM8-a?style=social&logo=github" alt="JAPM8"/>
+</a>
+
 <h2 style="margin-left:20px;margin-right:20px;margin-top:20px;margin-bottom:20px;"><span>Productos de MATLAB</span></h2><ul style="margin-left:20px;margin-right:20px;margin-top:20px;margin-bottom:20px;">
 
-<li><span>Bioinformatics Toolbox.</span></li><li><span>Database Toolbox.</span></li><li><span>Deep Learning Toolbox.</span></li><li><span>Fuzzy Logic Toolbox.</span></li><li><span>MATLAB.</span></li><li><span>Parallel Computing Toolbox</span></li><li><span>Signal Processing Toolbox.</span></li><li><span>Statistics and Machine Learning Toolbox.</span></li><li><span>Wavelet Toolbox.</span></li></ul>
+<li><span>MATLAB.</span><li><span>Bioinformatics Toolbox.</span></li><li><span>Database Toolbox.</span></li><li><span>Deep Learning Toolbox.</span></li><li><span>Fuzzy Logic Toolbox.</span></li></li><li><span>Parallel Computing Toolbox</span></li><li><span>Signal Processing Toolbox.</span></li><li><span>Statistics and Machine Learning Toolbox.</span></li><li><span>Wavelet Toolbox.</span></li></ul>
 
 <h2 style="margin-left:20px;margin-right:20px;margin-top:20px;margin-bottom:20px;"><span>Add-Ons</span></h2>
 <ul style="margin-left:20px;margin-right:20px;margin-top:20px;margin-bottom:20px;"><li><span>Widgets Toolbox - MATLAB App Designer Components 2.3.1.</span></li></ul>
@@ -39,5 +43,7 @@
 <tr><td style="background-color:#000000;border-color:#ffffff;border-style:solid;border-width:1px;color:#ffffff;font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;text-align:left;vertical-align:middle;word-break:normal">ZC.m</td><td style="background-color:#000000;border-color:#ffffff;border-style:solid;border-width:1px;color:#ffffff;font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;text-align:left;vertical-align:middle;word-break:normal">clasificadorRN.mlapp</td></tr></tbody></table></div>
 
 <h2 style="margin-left:20px;margin-right:20px;margin-top:20px;margin-bottom:20px;"><span>Gráfico de Dependencias</span></h2>
+<div style="margin-left: 20px;">
+<img src="Dependency_Graph9-11-24.png" alt="Dependency Graph" width="700">
+</div>
 
-![Dependency Graph](Dependency_Graph9-11-24.bmp)
