@@ -47,7 +47,7 @@ En este enfoque se exploraron e implementaron las redes neuronales profundas en
 el contexto del análisis de las señales EEG. Para lo cual, se abordó inicialmente 
 una estructura de red neuronal recurrente de tipo *[LSTM](https://colah.github.io/posts/2015-08-Understanding-LSTMs/)* 
 y posteriormente se trabajó con una red neuronal convolucional de tipo *[TCN](https://dida.do/blog/temporal-convolutional-networks-for-sequence-modeling)*, 
-para las cuales se trabajaron distintas combinaciones de capas evaluando su rendimiento en la categorización de segmentos de interés en EEG.
+para las cuales se trabajaron distintas combinaciones de capas evaluando su rendimiento en la categorización de segmentos de interés en EEGs.
 
 <p align="center">
   <img src="https://miro.medium.com/max/3840/1*v0ng9VkbuTu6ey9v8S3VDw.gif" alt="Ejemplo Red Neuronal Profunda" width="60%"/>
@@ -60,11 +60,16 @@ Por ello, se gestionó el acceso a la base de datos del *[Temple University Hosp
 uno de los repositorios de EEGs más grandes disponibles públicamente. Esta fuente de datos fue clave para el desarrollo de esta quinta fase y establece 
 una base sólida para continuar reforzando los modelos de clasificación de eventos epilépticos, además de abrir la puerta a nuevas exploraciones de algoritmos de aprendizaje de máquina.
 
-
 ### No olvides revisar :nerd_face: :
-- [Extracción Data Base de Datos TUH](App%20Designer/Prototipo_Data_TUH.m): Este contiene distintos métodos para una lectura eficiente de estudios de la base de datos de TUH.
-- 
+- [Extracción Señales Base de Datos TUH](App%20Designer/Prototipo_Data_TUH.m): Este contiene distintos métodos para una lectura eficiente de estudios del corpus SEIZ de base de datos de TUH.
+- [Estadísticas Base de Datos TUH](App%20Designer/Stats_DataTUHSEIZ.m): Este permite la extracción de estadísticas para el corpus SEIZ de la base de datos de TUH.
+- [Redes RNN](App%20Designer/Desarrollo_Redes_RNN.m): Este contiene las variantes de RNN trabajadas y su implementación en `MATLAB`.
+- [Redes CNN](App%20Designer/Desarrollo_Redes_CNN.m): Este contiene las variantes de CNN trabajadas y su implementación en `MATLAB`.
+- [Función de lectura openedf](): Esta permite la lectura de archivos `.edf` dándoles formato para ser analizados con la herramienta *Epileptic EEG Analysis Toolbox*.
+- [Epileptic EEG Analysis Toolbox](https://github.com/JAPM8/Herramienta/tree/main/App%20Designer): Este carpeta contiene los archivos necesarios para la herramienta diseñada
+a lo largo de las últimas cinco fases.
 
+**Dudas, comentarios o sugerencias:** :e-mail:[per20183@uvg.edu.gt](mailto:per20183@uvg.edu.gt)
 
 <h2>Enfoque aprendizaje no supervisado</h2>
 <p><strong>Por:</strong> <a href="https://github.com/DAIMUVG" target="_blank">
