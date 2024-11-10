@@ -68,8 +68,9 @@ una base sólida para continuar reforzando los modelos de clasificación de even
 - [Función de lectura openedf](): Esta permite la lectura de archivos `.edf` dándoles formato para ser analizados con la herramienta *Epileptic EEG Analysis Toolbox*.
 - [Epileptic EEG Analysis Toolbox](https://github.com/JAPM8/Herramienta/tree/main/App%20Designer): Este carpeta contiene los archivos necesarios para la herramienta diseñada
 a lo largo de las últimas cinco fases.
+- [¿Qué necesito para hacer funcionar la herramienta?](App%20Designer#readme): Aquí se detallan todas las dependencias, productos y *Add-Ons* necesarios.
 
-**Dudas, comentarios o sugerencias:** :e-mail:[per20183@uvg.edu.gt](mailto:per20183@uvg.edu.gt)
+:mailbox_with_mail:**Dudas, comentarios o sugerencias:**[per20183@uvg.edu.gt](mailto:per20183@uvg.edu.gt)
 
 <h2>Enfoque aprendizaje no supervisado</h2>
 <p><strong>Por:</strong> <a href="https://github.com/DAIMUVG" target="_blank">
