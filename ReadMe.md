@@ -98,3 +98,5 @@ Al igual que en el enfoque supervisado, el acceso a una base de datos amplia y d
   clasificación.
 - [Función para hacer uso de Fuzzy C-Means](App%20Designer/fcm.m): Esta función sirve para hacer uso de el cluster Fuzzy C-means.
 - [Epileptic EEG Analysis Toolbox](App%20Designer): Este carpeta contiene los archivos necesarios para la herramienta diseñada
+
+:mailbox_with_mail:**Dudas, comentarios del aprendizaje no supervisado:** [ixc18486@uvg.edu.gt](mailto:ixc18486@uvg.edu.gt)
