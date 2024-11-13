@@ -76,3 +76,25 @@ a lo largo de las últimas cinco fases.
 <p><strong>Por:</strong> <a href="https://github.com/DAIMUVG" target="_blank">
   <img src="https://img.shields.io/badge/DAIMUVG-a?style=social&logo=github" alt="DAIMUVG"/>
 </a></p>
+
+En este enfoque se implementaron técnicas de aprendizaje no supervisado en el análisis de señales EEG, enfocándose en la identificación y categorización de 
+segmentos de interés sin necesidad de etiquetas previas. Esto permite a los especialistas introducir señales EEG desconocidas en la herramienta, la cual 
+detecta automáticamente segmentos con patrones distintos o atípicos. Inicialmente, se utilizaron algoritmos como *[K-means](https://www.ibm.com/topics/k-means-clustering)*, 
+*[Jerarquíco](https://www.ibm.com/think/topics/hierarchical-clustering)* y *[Fuzzy C-Means](https://la.mathworks.com/help/fuzzy/fuzzy-clustering.html)* para agrupar las características extraídas de las señales. Posteriormente, 
+se exploraron técnicas de reducción de dimensionalidad como PCA para optimizar el rendimiento y visualización de los clusters generados.
+
+<p align="center">
+  <img src="https://waterprogramming.wordpress.com/wp-content/uploads/2022/03/graphic.png?w=1024" alt="Ejemplo de agrupación" width="60%"/>
+</p>
+
+<p align="center"><i>Fuente: <a href="https://waterprogramming.wordpress.com/2022/03/16/clustering-basics-and-a-demonstration-in-clustering-infrastructure-pathways/" target="_blank">Amestoy, Trevor </a></i></p>
+
+Al igual que en el enfoque supervisado, el acceso a una base de datos amplia y diversa fue fundamental para validar los resultados de los algoritmos de clustering. En esta fase, se utilizó la base de datos
+*[TUH EEG Epilepsy Corpus](https://isip.piconepress.com/projects/nedc/html/tuh_eeg/)* que contiene múltiples conjuntos de señales EEG. Algunas de estas señales incluyen etiquetas que resultaron especialmente
+útiles para validar la precisión de los algoritmos al agrupar segmentos y distinguir entre diferentes patrones en las señales EEG.
+
+### Pueder consultar:
+- [Función de Extracción de Características EEG](App%20Designer/ExtraerCaracteristicas.m): función que extrae estadísticas, cruces por cero, y potencias en bandas de frecuencia de señales EEG. Normaliza y limpia los datos para su uso en análisis de clustering y 
+  clasificación.
+- [Función para hacer uso de Fuzzy C-Means](App%20Designer/fcm.m): Esta función sirve para hacer uso de el cluster Fuzzy C-means.
+- [Epileptic EEG Analysis Toolbox](App%20Designer): Este carpeta contiene los archivos necesarios para la herramienta diseñada
