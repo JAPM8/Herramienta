@@ -14,6 +14,7 @@
 % Salidas:  U - Matriz con los valores de pertenencia uij
 %     centros - Matriz con los representantes de los clusters formados ("centros").
 function [U, centros] = fcm(X, m, q, op)
+op=0;
 % Parámetros para detener el algoritmo. Se pueden ajustar según se necesite.
 MaxIter     = 1000;
 StopThresh  = 1e-5;
